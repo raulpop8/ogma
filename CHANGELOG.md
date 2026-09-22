@@ -13,6 +13,11 @@
 
 ## 2026-09-22
 
+- `7ff5994` — **docs: add product specification**
+  - Added the root-level `Product Specification.md` as the authoritative product and build specification for Ogma.
+  - Updated visual-reference paths to the renamed `Resources/moodboard.png` location.
+  - Preserved the Monogram O branding direction, product architecture, MVP scope, privacy requirements, and Codex implementation guidance.
+
 - **docs: add repository development log**
   - Added the root-level `CHANGELOG.md` as the ongoing record of Ogma development.
   - Adopted the same date-grouped, commit-oriented format used by the GoPlaces development log.

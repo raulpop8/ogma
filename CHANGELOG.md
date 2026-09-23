@@ -11,10 +11,18 @@
 
 ---
 
+## 2026-09-23
+
+- **feat: add native emoji picker MVP**
+  - Added the Swift/AppKit menu-bar app, trigger handling, bundled emoji search, non-activating popup, Accessibility integration, and direct text insertion.
+  - Verified the core emoji flow on the development Mac and added lightweight trigger/search checks.
+  - Configured automatic Apple Development signing for local testing.
+  - Moved the newer product specification into `Resources/` as the single working copy and added the moodboard at its referenced path.
+
 ## 2026-09-22
 
 - `7ff5994` — **docs: add product specification**
-  - Added the root-level `Product Specification.md` as the authoritative product and build specification for Ogma.
+  - Added `Product Specification.md` as the authoritative product and build specification for Ogma (moved into `Resources/` on 2026-09-23).
   - Updated visual-reference paths to the renamed `Resources/moodboard.png` location.
   - Preserved the Monogram O branding direction, product architecture, MVP scope, privacy requirements, and Codex implementation guidance.
 

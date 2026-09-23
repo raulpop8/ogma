@@ -1,0 +1,287 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		000000000000000000000002 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000001 /* AppState.swift */; };
+		000000000000000000000004 /* OgmaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000003 /* OgmaApp.swift */; };
+		000000000000000000000006 /* EmojiItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000005 /* EmojiItem.swift */; };
+		000000000000000000000008 /* AccessibilityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000007 /* AccessibilityService.swift */; };
+		00000000000000000000000A /* EmojiSearchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000009 /* EmojiSearchService.swift */; };
+		00000000000000000000000C /* GlobalKeyboardMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000000B /* GlobalKeyboardMonitor.swift */; };
+		00000000000000000000000E /* PermissionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000000D /* PermissionService.swift */; };
+		000000000000000000000010 /* TextInsertionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000000F /* TextInsertionService.swift */; };
+		000000000000000000000012 /* TriggerEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000011 /* TriggerEngine.swift */; };
+		000000000000000000000014 /* EmojiPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000013 /* EmojiPanelController.swift */; };
+		000000000000000000000016 /* EmojiPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000015 /* EmojiPickerView.swift */; };
+		000000000000000000000018 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000017 /* SettingsView.swift */; };
+		00000000000000000000001A /* emoji.json in Resources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000019 /* emoji.json */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		000000000000000000000001 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		000000000000000000000003 /* OgmaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OgmaApp.swift; sourceTree = "<group>"; };
+		000000000000000000000005 /* EmojiItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiItem.swift; sourceTree = "<group>"; };
+		000000000000000000000007 /* AccessibilityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilityService.swift; sourceTree = "<group>"; };
+		000000000000000000000009 /* EmojiSearchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiSearchService.swift; sourceTree = "<group>"; };
+		00000000000000000000000B /* GlobalKeyboardMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalKeyboardMonitor.swift; sourceTree = "<group>"; };
+		00000000000000000000000D /* PermissionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionService.swift; sourceTree = "<group>"; };
+		00000000000000000000000F /* TextInsertionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextInsertionService.swift; sourceTree = "<group>"; };
+		000000000000000000000011 /* TriggerEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriggerEngine.swift; sourceTree = "<group>"; };
+		000000000000000000000013 /* EmojiPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiPanelController.swift; sourceTree = "<group>"; };
+		000000000000000000000015 /* EmojiPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiPickerView.swift; sourceTree = "<group>"; };
+		000000000000000000000017 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		000000000000000000000019 /* emoji.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = emoji.json; sourceTree = "<group>"; };
+		000000000000000000000027 /* Ogma.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Ogma.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		000000000000000000000026 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		00000000000000000000001D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				000000000000000000000027 /* Ogma.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		00000000000000000000001E /* Ogma */ = {
+			isa = PBXGroup;
+			children = (
+				00000000000000000000001F /* App */,
+				000000000000000000000020 /* Models */,
+				000000000000000000000021 /* Services */,
+				000000000000000000000022 /* UI */,
+				000000000000000000000023 /* Resources */,
+				00000000000000000000001D /* Products */,
+			);
+			path = Ogma;
+			sourceTree = "<group>";
+		};
+		00000000000000000000001F /* App */ = {
+			isa = PBXGroup;
+			children = (
+				000000000000000000000001 /* AppState.swift */,
+				000000000000000000000003 /* OgmaApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		000000000000000000000020 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				000000000000000000000005 /* EmojiItem.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		000000000000000000000021 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				000000000000000000000007 /* AccessibilityService.swift */,
+				000000000000000000000009 /* EmojiSearchService.swift */,
+				00000000000000000000000B /* GlobalKeyboardMonitor.swift */,
+				00000000000000000000000D /* PermissionService.swift */,
+				00000000000000000000000F /* TextInsertionService.swift */,
+				000000000000000000000011 /* TriggerEngine.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		000000000000000000000022 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				000000000000000000000013 /* EmojiPanelController.swift */,
+				000000000000000000000015 /* EmojiPickerView.swift */,
+				000000000000000000000017 /* SettingsView.swift */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
+		000000000000000000000023 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				000000000000000000000019 /* emoji.json */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		00000000000000000000001C /* Ogma */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 000000000000000000000029 /* Build configuration list for PBXNativeTarget "Ogma" */;
+			buildPhases = (
+				000000000000000000000024 /* Sources */,
+				000000000000000000000026 /* Frameworks */,
+				000000000000000000000025 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Ogma;
+			productName = Ogma;
+			productReference = 000000000000000000000027 /* Ogma.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		00000000000000000000001B /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 2700;
+				TargetAttributes = {
+					00000000000000000000001C = {
+						CreatedOnToolsVersion = 27.0;
+					};
+				};
+			};
+			buildConfigurationList = 000000000000000000000028 /* Build configuration list for PBXProject "Ogma" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 00000000000000000000001E /* Ogma */;
+			productRefGroup = 00000000000000000000001D /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				00000000000000000000001C /* Ogma */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		000000000000000000000025 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				00000000000000000000001A /* emoji.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		000000000000000000000024 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				000000000000000000000002 /* AppState.swift in Sources */,
+				000000000000000000000004 /* OgmaApp.swift in Sources */,
+				000000000000000000000006 /* EmojiItem.swift in Sources */,
+				000000000000000000000008 /* AccessibilityService.swift in Sources */,
+				00000000000000000000000A /* EmojiSearchService.swift in Sources */,
+				00000000000000000000000C /* GlobalKeyboardMonitor.swift in Sources */,
+				00000000000000000000000E /* PermissionService.swift in Sources */,
+				000000000000000000000010 /* TextInsertionService.swift in Sources */,
+				000000000000000000000012 /* TriggerEngine.swift in Sources */,
+				000000000000000000000014 /* EmojiPanelController.swift in Sources */,
+				000000000000000000000016 /* EmojiPickerView.swift in Sources */,
+				000000000000000000000018 /* SettingsView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		00000000000000000000002A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		00000000000000000000002B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		00000000000000000000002C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = M7XKT47DLY;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Ogma/Info.plist;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.raulpop.Ogma;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		00000000000000000000002D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = M7XKT47DLY;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Ogma/Info.plist;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.raulpop.Ogma;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		000000000000000000000028 /* Build configuration list for PBXProject "Ogma" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				00000000000000000000002A /* Debug */,
+				00000000000000000000002B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		000000000000000000000029 /* Build configuration list for PBXNativeTarget "Ogma" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				00000000000000000000002C /* Debug */,
+				00000000000000000000002D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 00000000000000000000001B /* Project object */;
+}

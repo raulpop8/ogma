@@ -1,6 +1,13 @@
 import Foundation
 
 final class TriggerEngine {
+    enum Mode: Equatable {
+        case emoji
+        case snippet
+
+        var triggerCharacter: String { self == .emoji ? ":" : "/" }
+    }
+
     enum Key {
         case character(String)
         case backspace
@@ -13,23 +20,29 @@ final class TriggerEngine {
 
     enum Outcome: Equatable {
         case none
-        case updated(String)
+        case updated(Mode, String)
         case navigate(Int)
         case accept
         case cancelled(consume: Bool)
     }
 
+    private(set) var mode: Mode?
     private(set) var query: String?
-    var isActive: Bool { query != nil }
-    var typedLength: Int { (query?.utf16.count ?? -1) + 1 }
+    var isActive: Bool { mode != nil }
+    var typedLength: Int { isActive ? 1 + (query?.utf16.count ?? 0) : 0 }
 
-    func reset() { query = nil }
+    func reset() {
+        mode = nil
+        query = nil
+    }
 
     func handle(_ key: Key) -> Outcome {
-        guard let current = query else {
-            if case .character(":") = key {
+        guard let current = query, let mode else {
+            if case .character(let value) = key, value == ":" || value == "/" {
+                let newMode: Mode = value == ":" ? .emoji : .snippet
+                mode = newMode
                 query = ""
-                return .updated("")
+                return .updated(newMode, "")
             }
             return .none
         }
@@ -42,15 +55,17 @@ final class TriggerEngine {
                 reset()
                 return .cancelled(consume: false)
             }
-            query = current + value.lowercased()
-            return .updated(query!)
+            let next = current + value.lowercased()
+            query = next
+            return .updated(mode, next)
         case .backspace:
             guard !current.isEmpty else {
                 reset()
                 return .cancelled(consume: false)
             }
-            query = String(current.dropLast())
-            return .updated(query!)
+            let next = String(current.dropLast())
+            query = next
+            return .updated(mode, next)
         case .up: return .navigate(-1)
         case .down: return .navigate(1)
         case .enter: return .accept

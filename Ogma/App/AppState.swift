@@ -10,9 +10,11 @@ final class AppState: ObservableObject {
     private let accessibility = AccessibilityService()
     private let insertion = TextInsertionService()
     private let search = EmojiSearchService()
+    let snippetStore = SnippetStore()
+    private let snippetSearch = SnippetSearchService()
     private let trigger = TriggerEngine()
     private let monitor = GlobalKeyboardMonitor()
-    private let panel = EmojiPanelController()
+    private let panel = SuggestionPanelController()
     private var activePID: pid_t?
 
     init() {
@@ -74,7 +76,9 @@ final class AppState: ObservableObject {
 
         let wasActive = trigger.isActive
         if !wasActive {
-            guard case .character(":") = key else { return false }
+            guard case .character(let character) = key,
+                  character == ":" || character == "/" else { return false }
+            if character == "/" && !snippetStore.snippets.contains(where: \.isEnabled) { return false }
         }
         guard let pid = accessibility.focusedApplicationPID(),
               pid != ProcessInfo.processInfo.processIdentifier else { cancel(); return false }
@@ -83,8 +87,14 @@ final class AppState: ObservableObject {
         let outcome = trigger.handle(key)
         if !wasActive && trigger.isActive { activePID = pid }
         switch outcome {
-        case .updated(let query):
-            let results = search.search(query)
+        case .updated(let mode, let query):
+            let results: [SuggestionItem]
+            switch mode {
+            case .emoji:
+                results = search.search(query).map(SuggestionItem.emoji)
+            case .snippet:
+                results = snippetSearch.search(query, in: snippetStore.snippets).map(SuggestionItem.snippet)
+            }
             panel.update(results, caretRect: accessibility.caretRect())
             return false
         case .navigate(let direction):
@@ -95,7 +105,7 @@ final class AppState: ObservableObject {
             guard let item = panel.selectedItem else { cancel(); return false }
             let length = trigger.typedLength
             cancel()
-            _ = insertion.replaceTrigger(length: length, with: item.emoji)
+            _ = insertion.replaceTrigger(length: length, with: item.replacement)
             return true
         case .cancelled(let consume):
             panel.hide()

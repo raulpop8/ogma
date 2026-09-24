@@ -16,10 +16,17 @@
 		00000000000000000000000E /* PermissionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000000D /* PermissionService.swift */; };
 		000000000000000000000010 /* TextInsertionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000000F /* TextInsertionService.swift */; };
 		000000000000000000000012 /* TriggerEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000011 /* TriggerEngine.swift */; };
-		000000000000000000000014 /* EmojiPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000013 /* EmojiPanelController.swift */; };
-		000000000000000000000016 /* EmojiPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000015 /* EmojiPickerView.swift */; };
+		000000000000000000000014 /* SuggestionPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000013 /* SuggestionPanelController.swift */; };
+		000000000000000000000016 /* SuggestionPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000015 /* SuggestionPickerView.swift */; };
 		000000000000000000000018 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000017 /* SettingsView.swift */; };
 		00000000000000000000001A /* emoji.json in Resources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000019 /* emoji.json */; };
+		000000000000000000000031 /* TextSnippet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000030 /* TextSnippet.swift */; };
+		000000000000000000000033 /* SuggestionItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000032 /* SuggestionItem.swift */; };
+		000000000000000000000035 /* SnippetStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000034 /* SnippetStore.swift */; };
+		000000000000000000000037 /* SnippetSearchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000036 /* SnippetSearchService.swift */; };
+		000000000000000000000039 /* SnippetEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000038 /* SnippetEditorView.swift */; };
+		00000000000000000000003B /* SnippetsSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000003A /* SnippetsSettingsView.swift */; };
+		00000000000000000000003D /* SuggestionPanelPositioner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000003C /* SuggestionPanelPositioner.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,11 +39,18 @@
 		00000000000000000000000D /* PermissionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionService.swift; sourceTree = "<group>"; };
 		00000000000000000000000F /* TextInsertionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextInsertionService.swift; sourceTree = "<group>"; };
 		000000000000000000000011 /* TriggerEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriggerEngine.swift; sourceTree = "<group>"; };
-		000000000000000000000013 /* EmojiPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiPanelController.swift; sourceTree = "<group>"; };
-		000000000000000000000015 /* EmojiPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiPickerView.swift; sourceTree = "<group>"; };
+		000000000000000000000013 /* SuggestionPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestionPanelController.swift; sourceTree = "<group>"; };
+		000000000000000000000015 /* SuggestionPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestionPickerView.swift; sourceTree = "<group>"; };
 		000000000000000000000017 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		000000000000000000000019 /* emoji.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = emoji.json; sourceTree = "<group>"; };
 		000000000000000000000027 /* Ogma.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Ogma.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		000000000000000000000030 /* TextSnippet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextSnippet.swift; sourceTree = "<group>"; };
+		000000000000000000000032 /* SuggestionItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestionItem.swift; sourceTree = "<group>"; };
+		000000000000000000000034 /* SnippetStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnippetStore.swift; sourceTree = "<group>"; };
+		000000000000000000000036 /* SnippetSearchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnippetSearchService.swift; sourceTree = "<group>"; };
+		000000000000000000000038 /* SnippetEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnippetEditorView.swift; sourceTree = "<group>"; };
+		00000000000000000000003A /* SnippetsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnippetsSettingsView.swift; sourceTree = "<group>"; };
+		00000000000000000000003C /* SuggestionPanelPositioner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestionPanelPositioner.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -84,6 +98,8 @@
 			isa = PBXGroup;
 			children = (
 				000000000000000000000005 /* EmojiItem.swift */,
+				000000000000000000000030 /* TextSnippet.swift */,
+				000000000000000000000032 /* SuggestionItem.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -97,6 +113,8 @@
 				00000000000000000000000D /* PermissionService.swift */,
 				00000000000000000000000F /* TextInsertionService.swift */,
 				000000000000000000000011 /* TriggerEngine.swift */,
+				000000000000000000000034 /* SnippetStore.swift */,
+				000000000000000000000036 /* SnippetSearchService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -104,9 +122,12 @@
 		000000000000000000000022 /* UI */ = {
 			isa = PBXGroup;
 			children = (
-				000000000000000000000013 /* EmojiPanelController.swift */,
-				000000000000000000000015 /* EmojiPickerView.swift */,
+				000000000000000000000013 /* SuggestionPanelController.swift */,
+				00000000000000000000003C /* SuggestionPanelPositioner.swift */,
+				000000000000000000000015 /* SuggestionPickerView.swift */,
 				000000000000000000000017 /* SettingsView.swift */,
+				000000000000000000000038 /* SnippetEditorView.swift */,
+				00000000000000000000003A /* SnippetsSettingsView.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -196,9 +217,16 @@
 				00000000000000000000000E /* PermissionService.swift in Sources */,
 				000000000000000000000010 /* TextInsertionService.swift in Sources */,
 				000000000000000000000012 /* TriggerEngine.swift in Sources */,
-				000000000000000000000014 /* EmojiPanelController.swift in Sources */,
-				000000000000000000000016 /* EmojiPickerView.swift in Sources */,
+				000000000000000000000014 /* SuggestionPanelController.swift in Sources */,
+				000000000000000000000016 /* SuggestionPickerView.swift in Sources */,
 				000000000000000000000018 /* SettingsView.swift in Sources */,
+				000000000000000000000031 /* TextSnippet.swift in Sources */,
+				000000000000000000000033 /* SuggestionItem.swift in Sources */,
+				000000000000000000000035 /* SnippetStore.swift in Sources */,
+				000000000000000000000037 /* SnippetSearchService.swift in Sources */,
+				000000000000000000000039 /* SnippetEditorView.swift in Sources */,
+				00000000000000000000003B /* SnippetsSettingsView.swift in Sources */,
+				00000000000000000000003D /* SuggestionPanelPositioner.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

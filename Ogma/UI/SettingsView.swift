@@ -4,13 +4,23 @@ struct SettingsView: View {
     @ObservedObject var state: AppState
 
     var body: some View {
+        TabView {
+            general
+                .tabItem { Label("General", systemImage: "gearshape") }
+            SnippetsSettingsView(store: state.snippetStore)
+                .tabItem { Label("Shortcuts", systemImage: "text.quote") }
+        }
+        .frame(width: 620, height: 440)
+    }
+
+    private var general: some View {
         Form {
             Section("General") {
                 Toggle("Enable Ogma", isOn: Binding(
                     get: { state.isEnabled },
                     set: { state.setEnabled($0) }
                 ))
-                Text("Type : followed by an emoji name in another app. Use arrow keys to choose, Return to insert, and Escape to cancel.")
+                Text("Type : for emoji or / for a saved text shortcut. Use arrow keys to choose, Return to insert, and Escape to cancel.")
                     .foregroundStyle(.secondary)
             }
             Section("Permissions") {
@@ -23,13 +33,12 @@ struct SettingsView: View {
                     Text(state.keyboardMonitoringReady ? "Ready" : "Unavailable")
                         .foregroundStyle(state.keyboardMonitoringReady ? .green : .secondary)
                 }
-                Text("Accessibility lets Ogma detect shortcuts and insert emoji in the active app.")
+                Text("Accessibility lets Ogma detect shortcuts and insert text in the active app.")
                     .foregroundStyle(.secondary)
                 Button("Check Permissions Again") { state.refreshPermissionsAndMonitor() }
             }
         }
         .formStyle(.grouped)
-        .frame(width: 440, height: 320)
     }
 
     private func permissionRow(_ title: String, granted: Bool, action: @escaping () -> Void) -> some View {

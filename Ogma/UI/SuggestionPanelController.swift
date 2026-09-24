@@ -1,8 +1,8 @@
 import AppKit
 import SwiftUI
 
-final class EmojiPanelController {
-    private let model = EmojiPickerModel()
+final class SuggestionPanelController {
+    private let model = SuggestionPickerModel()
     private let panel: NSPanel
 
     init() {
@@ -19,30 +19,33 @@ final class EmojiPanelController {
         panel.hidesOnDeactivate = false
         panel.ignoresMouseEvents = true
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
-        panel.contentView = NSHostingView(rootView: EmojiPickerView(model: model))
+        panel.contentView = NSHostingView(rootView: SuggestionPickerView(model: model))
     }
 
-    var selectedItem: EmojiItem? {
+    var selectedItem: SuggestionItem? {
         guard model.results.indices.contains(model.selection) else { return nil }
         return model.results[model.selection]
     }
 
     var hasResults: Bool { !model.results.isEmpty }
 
-    func update(_ results: [EmojiItem], caretRect: CGRect?) {
+    func update(_ results: [SuggestionItem], caretRect: CGRect?) {
         model.results = results
         model.selection = 0
         guard !results.isEmpty else { hide(); return }
-        let height = CGFloat(results.count * 34 + 12)
-        let anchor = pointForCaret(caretRect) ?? NSEvent.mouseLocation
+        let height = results.reduce(CGFloat(12)) { $0 + $1.rowHeight }
+        let caret = appKitCaretRect(caretRect)
+        let anchor = caret.map { CGPoint(x: $0.midX, y: $0.midY) } ?? NSEvent.mouseLocation
         let screen = NSScreen.screens.first(where: { $0.frame.contains(anchor) })
             ?? NSScreen.main ?? NSScreen.screens.first
         guard let screen else { return }
-        let visible = screen.visibleFrame
-        let x = min(max(anchor.x, visible.minX), visible.maxX - 300)
-        let below = anchor.y - height - 8
-        let y = below >= visible.minY ? below : min(anchor.y + 18, visible.maxY - height)
-        panel.setFrame(NSRect(x: x, y: y, width: 300, height: height), display: true)
+        let target = caret ?? CGRect(x: anchor.x, y: anchor.y, width: 1, height: 1)
+        let frame = SuggestionPanelPositioner.frame(
+            for: target,
+            size: CGSize(width: 300, height: height),
+            in: screen.visibleFrame
+        )
+        panel.setFrame(frame, display: true)
         panel.orderFrontRegardless()
     }
 
@@ -53,10 +56,11 @@ final class EmojiPanelController {
 
     func hide() { panel.orderOut(nil) }
 
-    private func pointForCaret(_ rect: CGRect?) -> CGPoint? {
+    private func appKitCaretRect(_ rect: CGRect?) -> CGRect? {
         guard let rect, !rect.isNull, !rect.isInfinite, rect.height > 0,
               let primary = NSScreen.screens.first else { return nil }
         // Accessibility coordinates use a top-left origin; AppKit uses bottom-left.
-        return CGPoint(x: rect.minX, y: primary.frame.maxY - rect.maxY)
+        return CGRect(x: rect.minX, y: primary.frame.maxY - rect.maxY,
+                      width: rect.width, height: rect.height)
     }
 }

@@ -11,6 +11,16 @@
 
 ---
 
+## 2026-09-24
+
+- **fix: keep suggestions clear of the typing area**
+  - Position the popup to the side of the caret when screen space allows, with screen-aware fallbacks.
+
+- **feat: add custom slash shortcuts**
+  - Added create, edit, delete, and enable controls for locally saved text shortcuts.
+  - Reused the existing trigger engine and non-activating popup for `/shortcut` suggestions.
+  - Added shortcut search and persistence checks; manual cross-app and multiline testing remains.
+
 ## 2026-09-23
 
 - **feat: add native emoji picker MVP**

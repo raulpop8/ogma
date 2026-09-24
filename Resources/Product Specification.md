@@ -1510,7 +1510,7 @@ At that point provide a concise implementation summary containing:
 
 # Future Roadmap
 
-## 46. Likely Second Milestone — Text Snippets
+## 46. Second Milestone — Text Snippets
 
 After emoji functionality is reliable, implement user-defined slash shortcuts.
 
@@ -1526,7 +1526,7 @@ becomes:
 hello@example.com
 ```
 
-Required future functionality:
+Required functionality:
 
 - create snippet
 - edit snippet
@@ -1642,25 +1642,29 @@ When asked to build Ogma:
 
 ### Current milestone
 
-**Build the system-wide emoji picker MVP.**
+**Build and verify user-defined slash shortcuts.** The emoji picker MVP is working on the development Mac.
 
 The milestone is successful when:
 
 ```text
-:smile
+/email
 ```
 
-can be typed in a normal macOS text field, Ogma displays a non-activating suggestion popup, and pressing Return replaces the trigger with:
+can be typed in a normal macOS text field after the user creates that shortcut, Ogma displays a non-activating suggestion popup, and pressing Return replaces the trigger with the user's saved text, for example:
 
 ```text
-😊
+hello@example.com
 ```
 
-while the original application remains focused.
+while the original application remains focused. The user can edit, disable, delete, and save multiline shortcuts locally. Manual testing remains necessary for insertion across applications and multiline text.
 
 ---
 
 # Change Log
+
+## 2026-09-24
+
+Started the second milestone: user-defined slash shortcuts with local persistence and shared suggestion UI.
 
 ## 2026-09-22
 

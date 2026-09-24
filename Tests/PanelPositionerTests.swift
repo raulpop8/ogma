@@ -8,7 +8,7 @@ struct PanelPositionerTests {
 
         let writingCaret = CGRect(x: 300, y: 400, width: 1, height: 20)
         let clearOfText = SuggestionPanelPositioner.frame(for: writingCaret, size: size, in: screen)
-        precondition(clearOfText.minX == 613)
+        precondition(clearOfText.minX == 313)
         precondition(clearOfText.maxY == writingCaret.maxY)
         precondition(!clearOfText.intersects(writingCaret))
 

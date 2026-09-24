@@ -13,6 +13,9 @@
 
 ## 2026-09-24
 
+- **fix: keep suggestions next to the caret**
+  - Removed the extra panel-width offset after device testing showed the popup too far to the right.
+
 - **fix: keep suggestions clear of the typing area**
   - Position the popup to the side of the caret when screen space allows, with screen-aware fallbacks.
 

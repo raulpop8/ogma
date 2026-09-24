@@ -8,20 +8,10 @@ enum SuggestionPanelPositioner {
         let height = min(size.height, visibleFrame.height)
         let sideY = clamp(caret.maxY - height, visibleFrame.minY, visibleFrame.maxY - height)
 
-        // Leave room for the text immediately around the caret on wider displays.
-        let distantRight = caret.maxX + size.width + gap
-        if distantRight + width <= visibleFrame.maxX {
-            return CGRect(x: distantRight, y: sideY, width: width, height: height)
-        }
-
+        // Keep the panel beside the caret without covering the active line.
         let nearRight = caret.maxX + gap
         if nearRight + width <= visibleFrame.maxX {
             return CGRect(x: nearRight, y: sideY, width: width, height: height)
-        }
-
-        let distantLeft = caret.minX - size.width - gap - width
-        if distantLeft >= visibleFrame.minX {
-            return CGRect(x: distantLeft, y: sideY, width: width, height: height)
         }
 
         let nearLeft = caret.minX - gap - width

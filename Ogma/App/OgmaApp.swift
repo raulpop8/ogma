@@ -1,4 +1,5 @@
 import AppKit
+import Sparkle
 import SwiftUI
 
 @main
@@ -14,6 +15,13 @@ enum OgmaMain {
 }
 
 final class OgmaAppDelegate: NSObject, NSApplicationDelegate {
+    #if !DEBUG
+    private let updaterController = SPUStandardUpdaterController(
+        startingUpdater: true,
+        updaterDelegate: nil,
+        userDriverDelegate: nil
+    )
+    #endif
     private var state: AppState!
     private var statusItem: NSStatusItem!
     private var settingsWindow: NSWindow?
@@ -42,6 +50,15 @@ final class OgmaAppDelegate: NSObject, NSApplicationDelegate {
         let settings = NSMenuItem(title: "Settings…", action: #selector(openSettings), keyEquivalent: ",")
         settings.target = self
         menu.addItem(settings)
+        #if !DEBUG
+        let updates = NSMenuItem(
+            title: "Check for Updates…",
+            action: #selector(SPUStandardUpdaterController.checkForUpdates(_:)),
+            keyEquivalent: ""
+        )
+        updates.target = updaterController
+        menu.addItem(updates)
+        #endif
         menu.addItem(.separator())
         let quit = NSMenuItem(title: "Quit Ogma", action: #selector(quitApp), keyEquivalent: "q")
         quit.target = self

@@ -27,6 +27,7 @@
 		000000000000000000000039 /* SnippetEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000038 /* SnippetEditorView.swift */; };
 		00000000000000000000003B /* SnippetsSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000003A /* SnippetsSettingsView.swift */; };
 		00000000000000000000003D /* SuggestionPanelPositioner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000003C /* SuggestionPanelPositioner.swift */; };
+		00000000000000000000003F /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 00000000000000000000003E /* Sparkle */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -58,6 +59,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				00000000000000000000003F /* Sparkle in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -156,6 +158,9 @@
 			dependencies = (
 			);
 			name = Ogma;
+			packageProductDependencies = (
+				00000000000000000000003E /* Sparkle */,
+			);
 			productName = Ogma;
 			productReference = 000000000000000000000027 /* Ogma.app */;
 			productType = "com.apple.product-type.application";
@@ -183,6 +188,9 @@
 				Base,
 			);
 			mainGroup = 00000000000000000000001E /* Ogma */;
+			packageReferences = (
+				000000000000000000000040 /* XCRemoteSwiftPackageReference "Sparkle" */,
+			);
 			productRefGroup = 00000000000000000000001D /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -259,10 +267,12 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = M7XKT47DLY;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Ogma/Info.plist;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 0.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.raulpop.Ogma;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -277,10 +287,13 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = M7XKT47DLY;
+				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Ogma/Info.plist;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 0.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.raulpop.Ogma;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -310,6 +323,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		000000000000000000000040 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparkle-project/Sparkle";
+			requirement = {
+				kind = exactVersion;
+				version = 2.10.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		00000000000000000000003E /* Sparkle */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 000000000000000000000040 /* XCRemoteSwiftPackageReference "Sparkle" */;
+			productName = Sparkle;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 00000000000000000000001B /* Project object */;
 }

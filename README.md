@@ -4,7 +4,7 @@ Ogma is a native macOS menu-bar utility for inserting emoji and saved text short
 
 ## Build and run
 
-Open `Ogma.xcodeproj` in Xcode and run the `Ogma` scheme. The project targets macOS 14 or newer and uses only Apple frameworks. It is a menu-bar app and does not show a Dock icon. The temporary menu-bar symbol is `text.cursor`.
+Open `Ogma.xcodeproj` in Xcode and run the `Ogma` scheme. The project targets macOS 14 or newer and uses Sparkle 2 for updates. It is a menu-bar app and does not show a Dock icon. The temporary menu-bar symbol is `text.cursor`.
 
 Ogma needs Accessibility to observe shortcuts, avoid secure fields, position the popup, and insert text. Grant it in System Settings, then choose **Settings… → Check Permissions Again**. The **Keyboard listener** row should show **Ready**. In a standard text field, type `:smile`, use arrow keys to choose, and press Return. Escape cancels.
 
@@ -12,7 +12,7 @@ To make a text shortcut, open **Settings… → Shortcuts**, click **Add Shortcu
 
 If the menu-bar item is missing after a code change, stop the running app in Xcode and run it again. A successful startup writes `Ogma menu bar ready` to Xcode's debug console. The item uses a text-cursor symbol, or an `O` if that symbol is unavailable.
 
-The project uses automatic Apple Development signing. macOS may ask for Accessibility permission once after switching from an earlier ad-hoc build, but the development identity remains stable across normal rebuilds. Developers using a different Apple account should select their own Team in Xcode's Signing & Capabilities pane.
+The project uses automatic Apple Development signing while running from Xcode. macOS may ask for Accessibility permission once after switching from an earlier ad-hoc build, but the development identity remains stable across normal rebuilds. Developers using a different Apple account should select their own Team in Xcode's Signing & Capabilities pane. See [RELEASING.md](RELEASING.md) for Developer ID signing, notarization, DMG packaging, GitHub publication, and Sparkle update testing.
 
 ## Implementation plan
 
@@ -22,7 +22,7 @@ The project uses automatic Apple Development signing. macOS may ask for Accessib
 4. **Broader device verification — pending:** Check focus retention, deletion, Escape, secure fields, and multiple displays. Verify Safari, Chrome, Messages, Mail, and other apps.
 5. **Compatibility fixes — pending:** Adjust insertion or caret positioning for any target apps that reject synthetic events or expose incomplete Accessibility geometry. Keep those changes inside their services.
 
-The bundled emoji list has 109 common entries. It can be expanded without changing the search code. Ogma stores no typing history, makes no network requests, and does not use the clipboard.
+The bundled emoji list has 109 common entries. It can be expanded without changing the search code. Ogma stores no typing history and does not use the clipboard. Sparkle contacts the configured update feed when automatic checks are enabled or the user checks manually.
 
 ## Core logic check
 

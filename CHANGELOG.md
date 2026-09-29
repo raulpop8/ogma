@@ -11,6 +11,13 @@
 
 ---
 
+## 2026-09-29
+
+- **feat: prepare direct distribution and in-app updates**
+  - Added Sparkle, a menu-bar update check, a public update-signing key, and a GitHub Pages feed URL.
+  - Added Developer ID DMG notarization and signed appcast scripts with a release guide.
+  - Moved app version and build number into Xcode settings and enabled Hardened Runtime for Release builds.
+
 ## 2026-09-24
 
 - **fix: keep suggestions next to the caret**

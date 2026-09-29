@@ -2,6 +2,10 @@
 
 Ogma is a native macOS menu-bar utility for inserting emoji and saved text shortcuts while typing. The product brief is in `Resources/Product Specification.md`, and the visual reference is `Resources/moodboard.png`.
 
+## Install
+
+Download the [latest Ogma DMG](https://github.com/raulpop8/ogma/releases/latest), open it, and drag **Ogma** into **Applications**. Launch it from Applications; its icon appears in the menu bar. Grant Accessibility permission when macOS asks. The installed release offers **Check for Updates…** from the Ogma menu and can notify you about later releases.
+
 ## Build and run
 
 Open `Ogma.xcodeproj` in Xcode and run the `Ogma` scheme. The project targets macOS 14 or newer and uses Sparkle 2 for updates. It is a menu-bar app and does not show a Dock icon. The temporary menu-bar symbol is `text.cursor`.

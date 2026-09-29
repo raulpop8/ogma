@@ -13,6 +13,10 @@
 
 ## 2026-09-29
 
+- **release: publish Ogma 0.1.0**
+  - Published the first Developer ID signed, notarized DMG on GitHub Releases.
+  - Published its EdDSA-signed Sparkle update entry through GitHub Pages.
+
 - **feat: prepare direct distribution and in-app updates**
   - Added Sparkle, a menu-bar update check, a public update-signing key, and a GitHub Pages feed URL.
   - Added Developer ID DMG notarization and signed appcast scripts with a release guide.

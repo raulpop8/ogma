@@ -4,6 +4,3 @@ Build/
 DerivedData/
 *.xcuserstate
 xcuserdata/
-
-# Local source artwork (the selected app assets live in Ogma/Resources/Assets.xcassets/)
-Resources/Logo Assets/

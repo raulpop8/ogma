@@ -1,40 +1,19 @@
 # Ogma
 
-Ogma is a native macOS menu-bar utility for inserting emoji and saved text shortcuts while typing. The product brief is in `Resources/Product Specification.md`, and the visual reference is `Resources/moodboard.png`.
+Ogma is a macOS menu bar app for inserting emoji and saved text shortcuts while typing. It requires macOS 14 or later.
 
 ## Install
 
-Download the [latest Ogma DMG](https://github.com/raulpop8/ogma/releases/latest), open it, and drag **Ogma** into **Applications**. Launch it from Applications; its icon appears in the menu bar. Grant Accessibility permission when macOS asks. The installed release offers **Check for Updates…** from the Ogma menu and can notify you about later releases.
+Download the [latest signed DMG](https://github.com/raulpop8/ogma/releases/latest), drag Ogma into Applications, and launch it. Grant Accessibility access in System Settings, then open **Ogma → Settings** and check that **Keyboard listener** says **Ready**. Ogma lives in the menu bar, not the Dock.
 
-## Build and run
+## Use
 
-Open `Ogma.xcodeproj` in Xcode and run the `Ogma` scheme. The project targets macOS 14 or newer and uses Sparkle 2 for updates. It is a menu-bar app and does not show a Dock icon. Its menu-bar glyph and primary light and dark artwork come from `Resources/Logo Assets`.
+- Type `:` to browse emoji, or `:joy` to search. Scroll, use arrow keys, or click a result; Return inserts it and Escape closes the picker. Choose a five-column grid or named list in **Settings → Emoji picker**.
+- Create a text shortcut in **Settings → Shortcuts**. For a shortcut named `email`, type `/email` in another app to insert its saved text.
+- Choose **Check for Updates…** from the Ogma menu to install a new release.
 
-Ogma needs Accessibility to observe shortcuts, avoid secure fields, position the popup, and insert text. Grant it in System Settings, then choose **Settings… → Check Permissions Again**. The **Keyboard listener** row should show **Ready**. In a standard text field, type `:` to browse emoji, then scroll or type a name such as `joy` to narrow the choices. Use arrow keys or click to choose, and press Return to insert. Escape cancels. **Settings… → Emoji picker** switches between a list and a five-column grid.
+Ogma stores shortcuts locally in Application Support. It does not store typing history or use the clipboard. The bundled emoji catalog comes from [Unicode Emoji 17.0](https://www.unicode.org/Public/17.0.0/emoji/emoji-test.txt); its [license](Ogma/Resources/UNICODE_LICENSE.txt) is included with the app.
 
-To make a text shortcut, open **Settings… → Shortcuts**, click **Add Shortcut**, enter a trigger such as `email` and the replacement text, then save. Type `/email` in another app and press Return to replace it. Shortcuts can contain multiple lines, and each shortcut can be edited, disabled, or deleted. They are saved locally in Application Support. When no shortcuts are enabled, typing `/` behaves normally.
+## Develop
 
-If the menu-bar item is missing after a code change, stop the running app in Xcode and run it again. A successful startup writes `Ogma menu bar ready` to Xcode's debug console. The item uses the Ogma template glyph, or an `O` if the asset is unavailable.
-
-The project uses automatic Apple Development signing while running from Xcode. macOS may ask for Accessibility permission once after switching from an earlier ad-hoc build, but the development identity remains stable across normal rebuilds. Developers using a different Apple account should select their own Team in Xcode's Signing & Capabilities pane. See [RELEASING.md](RELEASING.md) for Developer ID signing, notarization, DMG packaging, GitHub publication, and Sparkle update testing.
-
-## Implementation plan
-
-1. **Foundation — implemented:** Native Xcode app, menu-bar controls, Accessibility permission UI, bundled emoji data, trigger state, and ranked search.
-2. **Emoji flow — verified on the development Mac:** Non-activating popup, keyboard selection, caret position with pointer fallback, and replacement through synthetic backspaces and Unicode keyboard events. This strategy leaves the clipboard untouched.
-3. **Text shortcuts — implemented in code:** Slash suggestions, create/edit/delete/disable controls, and local JSON persistence. Device testing is next, especially multiline insertion.
-4. **Broader device verification — pending:** Check focus retention, deletion, Escape, secure fields, and multiple displays. Verify Safari, Chrome, Messages, Mail, and other apps.
-5. **Compatibility fixes — pending:** Adjust insertion or caret positioning for any target apps that reject synthetic events or expose incomplete Accessibility geometry. Keep those changes inside their services.
-
-The bundled emoji list contains 3,944 fully qualified emoji from [Unicode Emoji 17.0](https://www.unicode.org/Public/17.0.0/emoji/emoji-test.txt), with Ogma's original aliases and keywords retained for common entries. The Unicode license is bundled with the app in `Ogma/Resources/UNICODE_LICENSE.txt`. Ogma stores no typing history and does not use the clipboard. Sparkle contacts the configured update feed when automatic checks are enabled or the user checks manually.
-
-## Core logic check
-
-Run from the repository root:
-
-```sh
-swiftc Ogma/Models/EmojiItem.swift Ogma/Models/TextSnippet.swift Ogma/Services/EmojiSearchService.swift Ogma/Services/SnippetSearchService.swift Ogma/Services/SnippetStore.swift Ogma/Services/TriggerEngine.swift Tests/CoreLogicTests.swift -o /private/tmp/ogma-core-tests
-/private/tmp/ogma-core-tests
-swiftc Ogma/UI/SuggestionPanelPositioner.swift Tests/PanelPositionerTests.swift -o /private/tmp/ogma-panel-tests
-/private/tmp/ogma-panel-tests
-```
+Open [Ogma.xcodeproj](Ogma.xcodeproj) in Xcode and run the Ogma scheme. Choose your Apple development team under Signing & Capabilities if Xcode asks. See [RELEASING.md](RELEASING.md) for signing, notarization, and update-feed steps.

@@ -1,42 +1,25 @@
-# Releasing Ogma for macOS
+# Releasing Ogma
 
-Ogma is distributed directly as a notarized DMG. Sparkle checks the update feed
-at `https://raulpop8.github.io/ogma/appcast.xml`; the DMG downloads come from
-GitHub Releases. Keep the bundle identifier `com.raulpop.Ogma` and the Sparkle
-public key unchanged for subsequent updates.
+Ogma uses a Developer ID signed, notarized DMG on GitHub Releases and a [Sparkle update feed](https://raulpop8.github.io/ogma/appcast.xml) on GitHub Pages. Keep the bundle ID and Sparkle public key unchanged so installed copies can update.
 
-## One-time setup
+## Setup
 
-1. In Xcode's account settings, create or install a **Developer ID Application**
-   certificate for team `M7XKT47DLY`. The Release configuration already enables
-   Hardened Runtime. Do not use the Apple Development certificate for a release.
-2. Store notarization credentials in your login Keychain under a profile such as
-   `ogma-notary`. Follow [Apple's notarytool instructions](https://developer.apple.com/documentation/security/customizing-the-notarization-workflow).
-   Never put the password, API key, or Sparkle private key in this repository.
-3. In GitHub repository Settings → Pages, select **Deploy from a branch**, `main`,
-   `/docs`. The initial feed contains no update; the first DMG release replaces it
-   with a signed update entry.
-4. Keep a secure backup of the Sparkle private key stored in the login Keychain
-   under account `ogma`. The matching public key is in `Ogma/Info.plist`.
+- Select a Developer ID Application certificate for the Ogma target in Xcode. Store notarization credentials in the Keychain as `ogma-notary` using [Apple's notarytool setup](https://developer.apple.com/documentation/security/customizing-the-notarization-workflow).
+- Keep the Sparkle signing key in the Keychain under account `ogma`; back it up securely. Never commit signing keys or credentials.
+- Publish GitHub Pages from `main` → `/docs`.
 
 ## Each release
 
-1. In Xcode, increase **Version** and **Build** for the Ogma target. The build
-   number must increase every time. Build and test on a Mac, including the
-   menu-bar flow and Accessibility permission after installation.
-2. Select **Product → Archive**. In Organizer, choose **Distribute App → Developer ID**
-   and export the signed `Ogma.app`. Check that it is signed by Developer ID.
-3. Create and notarize the installer image:
+1. Increase both **Version** and **Build** in Xcode. Build and test the installed app, including the menu bar item, Accessibility access, and emoji insertion.
+2. **Product → Archive → Distribute App → Developer ID**. Export the signed `Ogma.app`.
+3. Notarize the DMG. The script checks the app signature and embedded Sparkle framework before submitting it:
 
    ```sh
    scripts/create-release-dmg.sh /path/to/exported/Ogma.app ogma-notary
    ```
 
-   The result is `Build/Releases/Ogma-X.Y.Z.dmg`. Open it and drag Ogma into
-   Applications. Quit any Xcode-run copy first so only the installed app runs.
-4. Create GitHub release `vX.Y.Z` and attach that exact DMG. The release asset
-   must be reachable before publishing the update feed.
-5. Generate the signed Sparkle entry, then commit and push the feed:
+4. Create a GitHub release tagged `vX.Y.Z` and attach the resulting `Build/Releases/Ogma-X.Y.Z.dmg`.
+5. After the download is available, sign and publish the update entry:
 
    ```sh
    scripts/update-appcast.sh Build/Releases/Ogma-X.Y.Z.dmg vX.Y.Z
@@ -45,13 +28,4 @@ public key unchanged for subsequent updates.
    git push origin main
    ```
 
-6. Check that the [public appcast](https://raulpop8.github.io/ogma/appcast.xml)
-   loads. From an older installed Ogma, choose **Check for Updates…** in the menu
-   bar and verify the full download, installation, relaunch, and permissions.
-
-The first release establishes the updater. To test an actual update, publish a
-second release with a higher build number; Sparkle cannot update a running
-Xcode development build reliably. Sparkle asks about automatic checks after
-the second launch and checks periodically thereafter. The update menu is shown
-in Release builds, including the installed app, and is hidden in Xcode's Debug
-builds.
+6. Confirm the [public feed](https://raulpop8.github.io/ogma/appcast.xml) shows the new build. In the previous installed release, choose **Check for Updates…** and test download, installation, relaunch, and permissions.

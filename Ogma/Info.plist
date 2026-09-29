@@ -13,7 +13,6 @@
     <key>LSMinimumSystemVersion</key><string>14.0</string>
     <key>LSUIElement</key><true/>
     <key>NSHighResolutionCapable</key><true/>
-    <key>NSHumanReadableCopyright</key><string>Copyright © 2026 Raul Pop</string>
     <key>SUFeedURL</key><string>https://raulpop8.github.io/ogma/appcast.xml</string>
     <key>SUPublicEDKey</key><string>q4BBJlLALwT8mS2FTswdOuU4OrV6S068Gwqu+8mRYM4=</string>
     <key>SUVerifyUpdateBeforeExtraction</key><true/>

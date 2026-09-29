@@ -39,21 +39,24 @@ fi
 
 mkdir -p "$output_dir"
 output_dir="$(cd "$output_dir" && pwd)"
-dmg_path="$output_dir/Ogma-$version.dmg"
-if [[ -e "$dmg_path" ]]; then
-    echo "Refusing to replace existing release: $dmg_path" >&2
+final_dmg_path="$output_dir/Ogma-$version.dmg"
+if [[ -e "$final_dmg_path" ]]; then
+    echo "Refusing to replace existing release: $final_dmg_path" >&2
     exit 1
 fi
 
 staging_dir="$(mktemp -d "${TMPDIR:-/private/tmp}/ogma-dmg.XXXXXX")"
 trap 'rm -rf "$staging_dir"' EXIT
-ditto "$app_path" "$staging_dir/Ogma.app"
-ln -s /Applications "$staging_dir/Applications"
+mkdir "$staging_dir/contents"
+ditto "$app_path" "$staging_dir/contents/Ogma.app"
+ln -s /Applications "$staging_dir/contents/Applications"
+dmg_path="$staging_dir/Ogma-$version.dmg"
 
-hdiutil create -quiet -volname "Ogma $version" -srcfolder "$staging_dir" -format UDZO "$dmg_path"
+hdiutil create -quiet -volname "Ogma $version" -srcfolder "$staging_dir/contents" -format UDZO "$dmg_path"
 xcrun notarytool submit "$dmg_path" --keychain-profile "$notary_profile" --wait
 xcrun stapler staple "$dmg_path"
 xcrun stapler validate "$dmg_path"
 hdiutil verify -quiet "$dmg_path"
+mv "$dmg_path" "$final_dmg_path"
 
-echo "Ready to publish: $dmg_path (version $version, build $build)"
+echo "Ready to publish: $final_dmg_path (version $version, build $build)"

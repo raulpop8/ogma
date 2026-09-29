@@ -3,7 +3,7 @@ import CoreGraphics
 final class GlobalKeyboardMonitor {
     typealias Handler = (CGEvent) -> Bool // true means consume the key event
     var handler: Handler?
-    var onPointerDown: (() -> Void)?
+    var onPointerDown: ((CGEvent) -> Void)?
 
     private var tap: CFMachPort?
     private var source: CFRunLoopSource?
@@ -28,7 +28,7 @@ final class GlobalKeyboardMonitor {
                     return Unmanaged.passUnretained(event)
                 }
                 if type == .leftMouseDown || type == .rightMouseDown {
-                    monitor.onPointerDown?()
+                    monitor.onPointerDown?(event)
                     return Unmanaged.passUnretained(event)
                 }
                 guard type == .keyDown,

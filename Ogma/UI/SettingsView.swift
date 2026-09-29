@@ -3,6 +3,7 @@ import SwiftUI
 struct SettingsView: View {
     @ObservedObject var state: AppState
     @Environment(\.colorScheme) private var colorScheme
+    @AppStorage("emojiPickerLayout") private var emojiPickerLayout = EmojiPickerLayout.grid.rawValue
 
     var body: some View {
         TabView {
@@ -33,6 +34,16 @@ struct SettingsView: View {
                     set: { state.setEnabled($0) }
                 ))
                 Text("Type : for emoji or / for a saved text shortcut. Use arrow keys to choose, Return to insert, and Escape to cancel.")
+                    .foregroundStyle(.secondary)
+            }
+            Section("Emoji picker") {
+                Picker("Display", selection: $emojiPickerLayout) {
+                    ForEach(EmojiPickerLayout.allCases, id: \.rawValue) { layout in
+                        Text(layout.title).tag(layout.rawValue)
+                    }
+                }
+                .pickerStyle(.segmented)
+                Text("Type : to browse emoji. Scroll for more, or type a name to narrow the choices.")
                     .foregroundStyle(.secondary)
             }
             Section("Permissions") {

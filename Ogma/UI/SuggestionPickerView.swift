@@ -1,43 +1,118 @@
 import SwiftUI
 
+enum EmojiPickerLayout: String, CaseIterable {
+    case list
+    case grid
+
+    var title: String { self == .list ? "List" : "Grid" }
+}
+
 final class SuggestionPickerModel: ObservableObject {
     @Published var results: [SuggestionItem] = []
     @Published var selection = 0
+    @Published var revision = 0
+    var onSelect: ((SuggestionItem) -> Void)?
+
+    var showsEmoji: Bool {
+        guard let first = results.first else { return false }
+        if case .emoji = first { return true }
+        return false
+    }
 }
 
 struct SuggestionPickerView: View {
     @ObservedObject var model: SuggestionPickerModel
+    @AppStorage("emojiPickerLayout") private var layoutName = EmojiPickerLayout.grid.rawValue
+
+    private var isGrid: Bool {
+        model.showsEmoji && layoutName == EmojiPickerLayout.grid.rawValue
+    }
 
     var body: some View {
-        VStack(spacing: 2) {
-            ForEach(Array(model.results.enumerated()), id: \.element.id) { index, item in
-                HStack(spacing: 10) {
-                    leadingView(for: item)
-                        .frame(width: 30)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(item.title)
-                            .font(.system(size: 13, weight: .medium,
-                                          design: item.detail == nil ? .default : .monospaced))
-                            .lineLimit(1)
-                        if let detail = item.detail {
-                            Text(detail)
-                                .font(.system(size: 11))
-                                .foregroundStyle(.secondary)
-                                .lineLimit(1)
+        ScrollViewReader { scroll in
+            VStack(spacing: 0) {
+                ScrollView(.vertical) {
+                    if isGrid {
+                        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 2), count: 5), spacing: 2) {
+                            ForEach(model.results.indices, id: \.self) { index in
+                                gridCell(at: index).id(index)
+                            }
+                        }
+                    } else {
+                        LazyVStack(spacing: 2) {
+                            ForEach(model.results.indices, id: \.self) { index in
+                                listRow(at: index).id(index)
+                            }
                         }
                     }
-                    Spacer(minLength: 0)
                 }
-                .padding(.horizontal, 8)
-                .frame(height: item.rowHeight - 2)
-                .background(index == model.selection ? Color.accentColor.opacity(0.18) : .clear,
-                            in: RoundedRectangle(cornerRadius: 6))
+                .scrollIndicators(.visible)
+                if isGrid, model.results.indices.contains(model.selection) {
+                    Divider()
+                    Text(model.results[model.selection].title)
+                        .font(.system(size: 11))
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 6)
+                        .frame(height: 23)
+                }
             }
+            .onChange(of: model.selection) { _, index in
+                withAnimation(.easeOut(duration: 0.12)) { scroll.scrollTo(index, anchor: .center) }
+            }
+            .onChange(of: model.revision) { _, _ in scroll.scrollTo(0, anchor: .top) }
         }
         .padding(6)
         .frame(width: 300)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
         .overlay(RoundedRectangle(cornerRadius: 10).stroke(.separator, lineWidth: 0.5))
+    }
+
+    private func listRow(at index: Int) -> some View {
+        let item = model.results[index]
+        return HStack(spacing: 10) {
+            leadingView(for: item).frame(width: 30)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(item.title)
+                    .font(.system(size: 13, weight: .medium,
+                                  design: item.detail == nil ? .default : .monospaced))
+                    .lineLimit(1)
+                if let detail = item.detail {
+                    Text(detail)
+                        .font(.system(size: 11))
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 8)
+        .frame(height: item.rowHeight - 2)
+        .background(index == model.selection ? Color.accentColor.opacity(0.18) : .clear,
+                    in: RoundedRectangle(cornerRadius: 6))
+        .contentShape(Rectangle())
+        .onTapGesture { choose(index) }
+    }
+
+    private func gridCell(at index: Int) -> some View {
+        let item = model.results[index]
+        return Text(item.replacement)
+            .font(.system(size: 27))
+            .frame(maxWidth: .infinity)
+            .frame(height: 46)
+            .background(index == model.selection ? Color.accentColor.opacity(0.18) : .clear,
+                        in: RoundedRectangle(cornerRadius: 6))
+            .contentShape(Rectangle())
+            .help(item.title)
+            .accessibilityLabel(item.title)
+            .onTapGesture { choose(index) }
+    }
+
+    private func choose(_ index: Int) {
+        guard model.results.indices.contains(index) else { return }
+        model.selection = index
+        model.onSelect?(model.results[index])
     }
 
     @ViewBuilder

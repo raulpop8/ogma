@@ -19,9 +19,9 @@ final class EmojiSearchService {
 
     func search(_ rawQuery: String, limit: Int = 8) -> [EmojiItem] {
         let query = rawQuery.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !query.isEmpty else { return [] }
+        guard !query.isEmpty else { return Array(items.prefix(limit)) }
 
-        return items.compactMap { item -> (EmojiItem, Int)? in
+        let matches = items.compactMap { item -> (EmojiItem, Int)? in
             let names = [item.name.lowercased()]
             let aliases = item.aliases.map { $0.lowercased() }
             let keywords = item.keywords.map { $0.lowercased() }
@@ -42,8 +42,26 @@ final class EmojiSearchService {
             if left.1 != right.1 { return left.1 < right.1 }
             return left.0.name < right.0.name
         }
-        .prefix(limit)
-        .map(\.0)
+
+        var results = matches.map(\.0)
+        // Keywords on the closest matches provide related choices after direct matches.
+        // For example, :joy also offers emoji tagged "laugh" and "funny".
+        if query.count >= 2, let bestScore = matches.first?.1, bestScore <= 3 {
+            let relatedTerms = Set(matches.prefix(3).flatMap { $0.0.keywords.map { $0.lowercased() } })
+                .subtracting([query])
+            if !relatedTerms.isEmpty {
+                let matchedIDs = Set(results.map(\.id))
+                let related = items.filter { item in
+                    guard !matchedIDs.contains(item.id) else { return false }
+                    let terms = item.name.lowercased().split(separator: " ").map(String.init)
+                        + item.keywords.map { $0.lowercased() }
+                        + item.aliases.map { $0.lowercased() }
+                    return terms.contains(where: { relatedTerms.contains($0) })
+                }
+                results.append(contentsOf: related)
+            }
+        }
+        return Array(results.prefix(limit))
     }
 
     private static func isNear(_ query: String, _ candidate: String) -> Bool {

@@ -13,6 +13,8 @@ final class TriggerEngine {
         case backspace
         case up
         case down
+        case left
+        case right
         case enter
         case escape
         case other
@@ -22,6 +24,7 @@ final class TriggerEngine {
         case none
         case updated(Mode, String)
         case navigate(Int)
+        case navigateHorizontal(Int)
         case accept
         case cancelled(consume: Bool)
     }
@@ -68,6 +71,8 @@ final class TriggerEngine {
             return .updated(mode, next)
         case .up: return .navigate(-1)
         case .down: return .navigate(1)
+        case .left: return .navigateHorizontal(-1)
+        case .right: return .navigateHorizontal(1)
         case .enter: return .accept
         case .escape:
             reset()

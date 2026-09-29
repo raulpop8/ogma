@@ -19,7 +19,11 @@ final class AppState: ObservableObject {
 
     init() {
         monitor.handler = { [weak self] event in self?.handle(event) ?? false }
-        monitor.onPointerDown = { [weak self] in self?.cancel() }
+        monitor.onPointerDown = { [weak self] event in
+            guard let self, !self.panel.containsPointerEvent(event) else { return }
+            self.cancel()
+        }
+        panel.onSelect = { [weak self] item in self?.choose(item) }
         refreshPermissionsAndMonitor()
     }
 
@@ -64,6 +68,8 @@ final class AppState: ObservableObject {
         case 51: key = .backspace
         case 126: key = .up
         case 125: key = .down
+        case 123: key = .left
+        case 124: key = .right
         case 36, 76: key = .enter
         case 53: key = .escape
         default:
@@ -91,7 +97,7 @@ final class AppState: ObservableObject {
             let results: [SuggestionItem]
             switch mode {
             case .emoji:
-                results = search.search(query).map(SuggestionItem.emoji)
+                results = search.search(query, limit: search.items.count).map(SuggestionItem.emoji)
             case .snippet:
                 results = snippetSearch.search(query, in: snippetStore.snippets).map(SuggestionItem.snippet)
             }
@@ -101,11 +107,13 @@ final class AppState: ObservableObject {
             guard panel.hasResults else { cancel(); return false }
             panel.moveSelection(direction)
             return true
+        case .navigateHorizontal(let direction):
+            guard panel.hasResults else { cancel(); return false }
+            panel.moveSelection(direction, horizontal: true)
+            return true
         case .accept:
             guard let item = panel.selectedItem else { cancel(); return false }
-            let length = trigger.typedLength
-            cancel()
-            _ = insertion.replaceTrigger(length: length, with: item.replacement)
+            choose(item)
             return true
         case .cancelled(let consume):
             panel.hide()
@@ -119,5 +127,12 @@ final class AppState: ObservableObject {
         trigger.reset()
         activePID = nil
         panel.hide()
+    }
+
+    private func choose(_ item: SuggestionItem) {
+        guard trigger.isActive else { return }
+        let length = trigger.typedLength
+        cancel()
+        _ = insertion.replaceTrigger(length: length, with: item.replacement)
     }
 }

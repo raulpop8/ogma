@@ -10,7 +10,7 @@ Download the [latest Ogma DMG](https://github.com/raulpop8/ogma/releases/latest)
 
 Open `Ogma.xcodeproj` in Xcode and run the `Ogma` scheme. The project targets macOS 14 or newer and uses Sparkle 2 for updates. It is a menu-bar app and does not show a Dock icon. Its menu-bar glyph and primary light and dark artwork come from `Resources/Logo Assets`.
 
-Ogma needs Accessibility to observe shortcuts, avoid secure fields, position the popup, and insert text. Grant it in System Settings, then choose **Settings… → Check Permissions Again**. The **Keyboard listener** row should show **Ready**. In a standard text field, type `:smile`, use arrow keys to choose, and press Return. Escape cancels.
+Ogma needs Accessibility to observe shortcuts, avoid secure fields, position the popup, and insert text. Grant it in System Settings, then choose **Settings… → Check Permissions Again**. The **Keyboard listener** row should show **Ready**. In a standard text field, type `:` to browse emoji, then scroll or type a name such as `joy` to narrow the choices. Use arrow keys or click to choose, and press Return to insert. Escape cancels. **Settings… → Emoji picker** switches between a list and a five-column grid.
 
 To make a text shortcut, open **Settings… → Shortcuts**, click **Add Shortcut**, enter a trigger such as `email` and the replacement text, then save. Type `/email` in another app and press Return to replace it. Shortcuts can contain multiple lines, and each shortcut can be edited, disabled, or deleted. They are saved locally in Application Support. When no shortcuts are enabled, typing `/` behaves normally.
 
@@ -26,7 +26,7 @@ The project uses automatic Apple Development signing while running from Xcode. m
 4. **Broader device verification — pending:** Check focus retention, deletion, Escape, secure fields, and multiple displays. Verify Safari, Chrome, Messages, Mail, and other apps.
 5. **Compatibility fixes — pending:** Adjust insertion or caret positioning for any target apps that reject synthetic events or expose incomplete Accessibility geometry. Keep those changes inside their services.
 
-The bundled emoji list has 109 common entries. It can be expanded without changing the search code. Ogma stores no typing history and does not use the clipboard. Sparkle contacts the configured update feed when automatic checks are enabled or the user checks manually.
+The bundled emoji list contains 3,944 fully qualified emoji from [Unicode Emoji 17.0](https://www.unicode.org/Public/17.0.0/emoji/emoji-test.txt), with Ogma's original aliases and keywords retained for common entries. The Unicode license is bundled with the app in `Ogma/Resources/UNICODE_LICENSE.txt`. Ogma stores no typing history and does not use the clipboard. Sparkle contacts the configured update feed when automatic checks are enabled or the user checks manually.
 
 ## Core logic check
 

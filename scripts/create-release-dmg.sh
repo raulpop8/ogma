@@ -36,6 +36,17 @@ if ! grep -q 'flags=.*runtime' <<< "$signature"; then
     echo "Ogma.app must have Hardened Runtime enabled." >&2
     exit 1
 fi
+if [[ ! -f "$app_path/Contents/Frameworks/Sparkle.framework/Versions/B/Sparkle" ]]; then
+    echo "Ogma.app is missing its embedded Sparkle framework." >&2
+    exit 1
+fi
+for arch in arm64 x86_64; do
+    load_commands="$(otool -l -arch "$arch" "$app_path/Contents/MacOS/Ogma")"
+    if ! grep -Fq 'path @executable_path/../Frameworks' <<< "$load_commands"; then
+        echo "Ogma.app is missing the Sparkle framework search path for $arch." >&2
+        exit 1
+    fi
+done
 
 mkdir -p "$output_dir"
 output_dir="$(cd "$output_dir" && pwd)"

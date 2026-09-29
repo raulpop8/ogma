@@ -8,13 +8,13 @@ Download the [latest Ogma DMG](https://github.com/raulpop8/ogma/releases/latest)
 
 ## Build and run
 
-Open `Ogma.xcodeproj` in Xcode and run the `Ogma` scheme. The project targets macOS 14 or newer and uses Sparkle 2 for updates. It is a menu-bar app and does not show a Dock icon. The temporary menu-bar symbol is `text.cursor`.
+Open `Ogma.xcodeproj` in Xcode and run the `Ogma` scheme. The project targets macOS 14 or newer and uses Sparkle 2 for updates. It is a menu-bar app and does not show a Dock icon. Its menu-bar glyph and primary light and dark artwork come from `Resources/Logo Assets`.
 
 Ogma needs Accessibility to observe shortcuts, avoid secure fields, position the popup, and insert text. Grant it in System Settings, then choose **Settings… → Check Permissions Again**. The **Keyboard listener** row should show **Ready**. In a standard text field, type `:smile`, use arrow keys to choose, and press Return. Escape cancels.
 
 To make a text shortcut, open **Settings… → Shortcuts**, click **Add Shortcut**, enter a trigger such as `email` and the replacement text, then save. Type `/email` in another app and press Return to replace it. Shortcuts can contain multiple lines, and each shortcut can be edited, disabled, or deleted. They are saved locally in Application Support. When no shortcuts are enabled, typing `/` behaves normally.
 
-If the menu-bar item is missing after a code change, stop the running app in Xcode and run it again. A successful startup writes `Ogma menu bar ready` to Xcode's debug console. The item uses a text-cursor symbol, or an `O` if that symbol is unavailable.
+If the menu-bar item is missing after a code change, stop the running app in Xcode and run it again. A successful startup writes `Ogma menu bar ready` to Xcode's debug console. The item uses the Ogma template glyph, or an `O` if the asset is unavailable.
 
 The project uses automatic Apple Development signing while running from Xcode. macOS may ask for Accessibility permission once after switching from an earlier ad-hoc build, but the development identity remains stable across normal rebuilds. Developers using a different Apple account should select their own Team in Xcode's Signing & Capabilities pane. See [RELEASING.md](RELEASING.md) for Developer ID signing, notarization, DMG packaging, GitHub publication, and Sparkle update testing.
 

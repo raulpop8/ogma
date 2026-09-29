@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @ObservedObject var state: AppState
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         TabView {
@@ -15,6 +16,17 @@ struct SettingsView: View {
 
     private var general: some View {
         Form {
+            HStack(spacing: 12) {
+                Image(colorScheme == .dark ? "PrimaryDark" : "PrimaryLight")
+                    .resizable()
+                    .interpolation(.high)
+                    .frame(width: 48, height: 48)
+                    .accessibilityHidden(true)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Ogma").font(.headline)
+                    Text("Emoji and text shortcuts").foregroundStyle(.secondary)
+                }
+            }
             Section("General") {
                 Toggle("Enable Ogma", isOn: Binding(
                     get: { state.isEnabled },

@@ -27,15 +27,16 @@ final class OgmaAppDelegate: NSObject, NSApplicationDelegate {
     private var settingsWindow: NSWindow?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        state = AppState()
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
-        if let image = NSImage(systemSymbolName: "text.cursor", accessibilityDescription: "Ogma") {
+        if let image = NSImage(named: "MenuBarIcon") {
+            image.size = NSSize(width: 22, height: 22)
             image.isTemplate = true
             statusItem.button?.image = image
         } else {
             statusItem.button?.title = "O"
         }
         statusItem.button?.toolTip = "Ogma"
+        state = AppState()
         updateMenu()
         NSLog("Ogma menu bar ready")
     }

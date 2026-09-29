@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+
+    <defs>
+      <linearGradient id="gradPurple" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#FFFFFF"/>
+        <stop offset="40%" stop-color="#D6CBFF"/>
+        <stop offset="100%" stop-color="#6C43F3"/>
+      </linearGradient>
+      <linearGradient id="gradPurpleBar" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#A994FF"/>
+        <stop offset="100%" stop-color="#5F35ED"/>
+      </linearGradient>
+      <linearGradient id="bgAccent" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#8C6CFF"/>
+        <stop offset="100%" stop-color="#5632D9"/>
+      </linearGradient>
+      <radialGradient id="bgDark" cx="55%" cy="35%" r="90%">
+        <stop offset="0%" stop-color="#25242D"/>
+        <stop offset="100%" stop-color="#101015"/>
+      </radialGradient>
+      <radialGradient id="bgPremium" cx="50%" cy="35%" r="90%">
+        <stop offset="0%" stop-color="#24222A"/>
+        <stop offset="100%" stop-color="#0D0D11"/>
+      </radialGradient>
+      <linearGradient id="gradGold" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#FFD36A"/>
+        <stop offset="100%" stop-color="#D99B2E"/>
+      </linearGradient>
+      <filter id="softGlow" x="-30%" y="-30%" width="160%" height="160%">
+        <feGaussianBlur stdDeviation="12.288" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+    
+<rect width="1024" height="1024" rx="225" fill="#F6F5F2"/>
+<g>
+<path d="M 512.0 184.32000000000002 A 220.16 220.16 0 1 1 512.0 624.64 A 220.16 220.16 0 1 1 512.0 184.32000000000002 Z M 512.0 256.0 A 148.48 148.48 0 1 0 512.0 552.96 A 148.48 148.48 0 1 0 512.0 256.0 Z" fill="#0D0C16" fill-rule="evenodd"/>
+<rect x="337.91999999999996" y="691.2" width="348.16" height="73.728" rx="36.864" fill="#0D0C16"/>
+</g>
+</svg>

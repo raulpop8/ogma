@@ -1,12 +1,330 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Ogma for macOS</title>
+    <meta name="theme-color" content="#F6F5F2" id="theme-color">
+    <meta name="description" content="Ogma is a macOS menu bar app for emoji and text shortcuts. Type more. Effortlessly.">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/ogma-favicon-light.png?v=2" id="site-icon">
+    <title>Ogma — Type more. Effortlessly.</title>
+    <script>
+      (() => {
+        const saved = localStorage.getItem('ogma-theme');
+        const theme = saved || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+      })();
+    </script>
+    <style>
+      :root {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-synthesis: none;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        --purple: #8C6CFF;
+        --purple-deep: #6C43F3;
+        --purple-soft: #D6CBFF;
+        --page: #F6F5F2;
+        --surface: #FFFFFF;
+        --surface-soft: #F0EEF7;
+        --ink: #0D0C16;
+        --muted: #666472;
+        --line: #E7E4ED;
+        --button-text: #FFFFFF;
+        color: var(--ink);
+        background: var(--page);
+        transition: background-color .28s ease, color .28s ease;
+      }
+
+      :root[data-theme="dark"] {
+        --page: #101015;
+        --surface: #19181F;
+        --surface-soft: #24222A;
+        --ink: #F6F5F2;
+        --muted: #B4B1C0;
+        --line: #34313E;
+        --button-text: #FFFFFF;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        min-width: 320px;
+        min-height: 100vh;
+        margin: 0;
+        background: var(--page);
+        color: var(--ink);
+        transition: background-color .28s ease, color .28s ease;
+      }
+
+      a { color: inherit; }
+
+      .page-shell {
+        display: flex;
+        min-height: 100vh;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      header, footer {
+        display: flex;
+        width: min(100% - 48px, 1120px);
+        align-items: center;
+        justify-content: space-between;
+        margin-inline: auto;
+      }
+
+      header { min-height: 88px; }
+
+      .wordmark {
+        width: 104px;
+        height: 40px;
+        object-fit: contain;
+        object-position: left center;
+      }
+
+      .theme-toggle {
+        display: inline-flex;
+        min-height: 40px;
+        align-items: center;
+        gap: 9px;
+        padding: 0 13px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: var(--surface);
+        color: var(--ink);
+        font: inherit;
+        font-size: 13px;
+        cursor: pointer;
+        transition: background-color .28s ease, border-color .28s ease, color .28s ease;
+      }
+
+      .theme-toggle:hover { border-color: var(--purple); }
+      .theme-icon {
+        color: var(--purple-deep);
+        font-size: 16px;
+        line-height: 1;
+        transition: color .28s ease, transform .36s cubic-bezier(.2, .75, .25, 1.2);
+      }
+      [data-theme="dark"] .theme-icon { color: #BDAAFF; transform: rotate(45deg); }
+
+      .wordmark, .hero-logo { transition: opacity .16s ease; }
+      .wordmark.is-switching, .hero-logo.is-switching { opacity: 0; }
+
+      main {
+        display: grid;
+        flex: 1;
+        place-items: center;
+        padding: 48px 24px 72px;
+      }
+
+      .hero {
+        width: min(100%, 760px);
+        text-align: center;
+      }
+
+      .hero-logo {
+        display: block;
+        width: min(100%, 430px);
+        height: auto;
+        margin: 0 auto 25px;
+      }
+
+      .eyebrow {
+        margin: 0 0 16px;
+        color: var(--purple-deep);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .15em;
+        text-transform: uppercase;
+      }
+
+      [data-theme="dark"] .eyebrow { color: #BDAAFF; }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(38px, 7vw, 62px);
+        font-weight: 600;
+        letter-spacing: -.055em;
+        line-height: 1.08;
+      }
+
+      .intro {
+        max-width: 540px;
+        margin: 20px auto 0;
+        color: var(--muted);
+        font-size: clamp(17px, 2.5vw, 20px);
+        line-height: 1.65;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        margin-top: 32px;
+      }
+
+      .download {
+        display: inline-flex;
+        min-height: 50px;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 0 22px;
+        border: 1px solid transparent;
+        border-radius: 11px;
+        background: linear-gradient(110deg, #8C6CFF, #6C43F3);
+        box-shadow: 0 7px 20px rgb(108 67 243 / 22%);
+        color: var(--button-text);
+        font-size: 15px;
+        font-weight: 650;
+        text-decoration: none;
+        transition: box-shadow .16s ease, transform .16s ease;
+      }
+
+      .download:hover { box-shadow: 0 10px 26px rgb(108 67 243 / 32%); transform: translateY(-1px); }
+      .download-arrow { font-size: 18px; }
+
+      .source {
+        display: inline-flex;
+        min-height: 48px;
+        align-items: center;
+        padding: 0 16px;
+        border-radius: 10px;
+        color: var(--muted);
+        font-size: 14px;
+        text-decoration-color: var(--line);
+        text-underline-offset: 4px;
+      }
+
+      .source:hover { color: var(--ink); }
+
+      .requirements {
+        display: inline-flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px 18px;
+        margin: 32px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .requirements span { display: inline-flex; align-items: center; gap: 7px; }
+      .requirements span::before { color: var(--purple); content: "✦"; font-size: 11px; }
+
+      footer {
+        min-height: 72px;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      footer a { text-decoration-color: var(--line); text-underline-offset: 3px; }
+      a:focus-visible, button:focus-visible { outline: 3px solid var(--purple); outline-offset: 4px; }
+
+      @media (max-width: 560px) {
+        header, footer { width: min(100% - 36px, 1120px); }
+        header { min-height: 72px; }
+        main { padding: 28px 20px 52px; }
+        .hero-logo { width: min(100%, 360px); margin-bottom: 20px; }
+        footer { min-height: 64px; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+      }
+    </style>
   </head>
   <body>
-    <h1>Ogma for macOS</h1>
-    <p>Download the latest installer from <a href="https://github.com/raulpop8/ogma/releases">GitHub Releases</a>.</p>
+    <div class="page-shell">
+      <header>
+        <a href="./" aria-label="Ogma home">
+          <img class="wordmark" id="header-logo" src="assets/ogma-logo-light.svg" alt="Ogma">
+        </a>
+        <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode">
+          <span class="theme-icon" id="theme-icon" aria-hidden="true">☾</span>
+          <span id="theme-label">Dark mode</span>
+        </button>
+      </header>
+
+      <main>
+        <section class="hero" aria-labelledby="hero-title">
+          <img class="hero-logo" id="hero-logo" src="assets/ogma-logo-light.svg" alt="Ogma — Type more. Effortlessly.">
+          <p class="eyebrow">A little more flow in every day</p>
+          <h1 id="hero-title">Your words, within reach.</h1>
+          <p class="intro">Bring up emoji as you type. Turn your most-used phrases into shortcuts. Ogma keeps both close from your menu bar.</p>
+          <div class="actions">
+            <a class="download" href="https://github.com/raulpop8/ogma/releases/latest">
+              Download for macOS <span class="download-arrow" aria-hidden="true">↓</span>
+            </a>
+            <a class="source" href="https://github.com/raulpop8/ogma">View source on GitHub</a>
+          </div>
+          <p class="requirements">
+            <span>macOS 14 or later</span>
+            <span>Accessibility permission required for text insertion</span>
+          </p>
+        </section>
+      </main>
+
+      <footer>
+        <span>Made by <a href="https://raulpop.ro">Raul Pop</a></span>
+        <a href="https://github.com/raulpop8/ogma">Open source on GitHub</a>
+      </footer>
+    </div>
+    <script>
+      (() => {
+        const root = document.documentElement;
+        const toggle = document.getElementById('theme-toggle');
+        const label = document.getElementById('theme-label');
+        const icon = document.getElementById('theme-icon');
+        const favicon = document.getElementById('site-icon');
+        const browserTheme = document.getElementById('theme-color');
+        const headerLogo = document.getElementById('header-logo');
+        const heroLogo = document.getElementById('hero-logo');
+        const systemTheme = matchMedia('(prefers-color-scheme: dark)');
+
+        function switchLogo(image, theme) {
+          const source = `assets/ogma-logo-${theme}.svg`;
+          if (image.getAttribute('src') === source) return;
+          image.classList.add('is-switching');
+          window.setTimeout(() => {
+            image.src = source;
+            const showLogo = () => {
+              image.classList.remove('is-switching');
+              image.removeEventListener('load', showLogo);
+            };
+            image.addEventListener('load', showLogo, { once: true });
+            if (image.complete) requestAnimationFrame(showLogo);
+          }, 160);
+        }
+
+        function applyTheme(theme, save = false) {
+          root.dataset.theme = theme;
+          root.style.colorScheme = theme;
+          const dark = theme === 'dark';
+          label.textContent = dark ? 'Light mode' : 'Dark mode';
+          icon.textContent = dark ? '☀' : '☾';
+          toggle.setAttribute('aria-label', `Switch to ${dark ? 'light' : 'dark'} mode`);
+          favicon.href = `assets/ogma-favicon-${dark ? 'dark' : 'light'}.png?v=2`;
+          browserTheme.content = dark ? '#101015' : '#F6F5F2';
+          switchLogo(headerLogo, theme);
+          switchLogo(heroLogo, theme);
+          if (save) localStorage.setItem('ogma-theme', theme);
+        }
+
+        toggle.addEventListener('click', () => {
+          applyTheme(root.dataset.theme === 'dark' ? 'light' : 'dark', true);
+        });
+
+        systemTheme.addEventListener('change', (event) => {
+          if (!localStorage.getItem('ogma-theme')) applyTheme(event.matches ? 'dark' : 'light');
+        });
+
+        applyTheme(root.dataset.theme);
+      })();
+    </script>
   </body>
 </html>

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="1400" viewBox="0 0 2400 1400">
+<defs>
+  <linearGradient id="gradPurple" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="#FFFFFF"/>
+    <stop offset="40%" stop-color="#D6CBFF"/>
+    <stop offset="100%" stop-color="#6C43F3"/>
+  </linearGradient>
+  <linearGradient id="gradPurpleBar" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%" stop-color="#A994FF"/>
+    <stop offset="100%" stop-color="#5F35ED"/>
+  </linearGradient>
+</defs>
+
+<path d="M 1200.0 180 A 150 150 0 1 1 1200.0 480 A 150 150 0 1 1 1200.0 180 Z M 1200.0 228 A 102 102 0 1 0 1200.0 432 A 102 102 0 1 0 1200.0 228 Z" fill="url(#gradPurple)" fill-rule="evenodd"/>
+<rect x="1085.0" y="520" width="230" height="50" rx="25.0" fill="url(#gradPurpleBar)"/>
+<text x="1200.0" y="915" text-anchor="middle"
+      font-family="Inter, Arial, sans-serif" font-size="280" font-weight="500"
+      letter-spacing="-10" fill="#FFFFFF">Ogma</text>
+<text x="1200.0" y="1080" text-anchor="middle"
+      font-family="Inter, Arial, sans-serif" font-size="76" font-weight="400"
+      letter-spacing="-1" fill="#FFFFFF">Type more. Effortlessly.</text>
+</svg>

@@ -1,24 +1,12 @@
 import CoreGraphics
 
 enum SuggestionPanelPositioner {
-    private static let gap: CGFloat = 12
+    private static let gap: CGFloat = 4
 
     static func frame(for caret: CGRect, size: CGSize, in visibleFrame: CGRect) -> CGRect {
         let width = min(size.width, visibleFrame.width)
         let height = min(size.height, visibleFrame.height)
-        let sideY = clamp(caret.maxY - height, visibleFrame.minY, visibleFrame.maxY - height)
-
-        // Keep the panel beside the caret without covering the active line.
-        let nearRight = caret.maxX + gap
-        if nearRight + width <= visibleFrame.maxX {
-            return CGRect(x: nearRight, y: sideY, width: width, height: height)
-        }
-
-        let nearLeft = caret.minX - gap - width
-        if nearLeft >= visibleFrame.minX {
-            return CGRect(x: nearLeft, y: sideY, width: width, height: height)
-        }
-
+        // Align with the insertion point and keep the active line uncovered.
         let x = clamp(caret.minX, visibleFrame.minX, visibleFrame.maxX - width)
         let below = caret.minY - gap - height
         if below >= visibleFrame.minY {

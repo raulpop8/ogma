@@ -148,6 +148,6 @@ final class AppState: ObservableObject {
         guard trigger.isActive else { return }
         let length = trigger.typedLength
         cancel()
-        _ = insertion.replaceTrigger(length: length, with: item.replacement)
+        _ = insertion.replaceTrigger(length: length, with: item.insertionText)
     }
 }

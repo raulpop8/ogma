@@ -50,6 +50,12 @@ struct CoreLogicTests {
         assert(snippetSearch.search("em", in: store.snippets).first?.replacement == "hello@example.com")
         assert(store.validationError(trigger: "date", replacement: "fixed") == .reservedTrigger)
         assert(SuggestionItem.date.title == "/date")
+        assert(SuggestionItem.date.insertionText.hasSuffix(" "))
+        assert(SuggestionItem.emoji(items[0]).insertionText == items[0].emoji + " ")
+        let spaced = TextSnippet(id: UUID(), trigger: "space", replacement: "Hello ", isEnabled: true)
+        assert(SuggestionItem.snippet(spaced).insertionText == "Hello ")
+        let multiline = TextSnippet(id: UUID(), trigger: "line", replacement: "Hello\n", isEnabled: true)
+        assert(SuggestionItem.snippet(multiline).insertionText == "Hello\n")
         let testDate = Date(timeIntervalSince1970: 12 * 60 * 60)
         assert(DateDisplayFormat.iso8601.display(testDate) == "1970-01-01")
         let email = store.snippets.first { $0.trigger == "email" }!

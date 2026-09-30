@@ -8,13 +8,14 @@ struct PanelPositionerTests {
 
         let writingCaret = CGRect(x: 300, y: 400, width: 1, height: 20)
         let clearOfText = SuggestionPanelPositioner.frame(for: writingCaret, size: size, in: screen)
-        precondition(clearOfText.minX == 313)
-        precondition(clearOfText.maxY == writingCaret.maxY)
+        precondition(clearOfText.minX == writingCaret.minX)
+        precondition(clearOfText.maxY == writingCaret.minY - 4)
         precondition(!clearOfText.intersects(writingCaret))
 
         let rightCaret = CGRect(x: 1150, y: 400, width: 1, height: 20)
-        let leftPlacement = SuggestionPanelPositioner.frame(for: rightCaret, size: size, in: screen)
-        precondition(leftPlacement.maxX < rightCaret.minX)
+        let edgePlacement = SuggestionPanelPositioner.frame(for: rightCaret, size: size, in: screen)
+        precondition(edgePlacement.maxX == screen.maxX)
+        precondition(edgePlacement.maxY == rightCaret.minY - 4)
 
         let narrowScreen = CGRect(x: 0, y: 0, width: 300, height: 800)
         let middleCaret = CGRect(x: 150, y: 400, width: 1, height: 20)
@@ -29,6 +30,12 @@ struct PanelPositionerTests {
         let secondCaret = CGRect(x: -1100, y: 500, width: 1, height: 20)
         let secondPlacement = SuggestionPanelPositioner.frame(for: secondCaret, size: size, in: secondScreen)
         precondition(secondScreen.contains(secondPlacement))
+        precondition(secondPlacement.minX == secondCaret.minX)
+
+        let wideSelection = CGRect(x: 100, y: 400, width: 450, height: 20)
+        let selectionPlacement = SuggestionPanelPositioner.frame(for: wideSelection, size: size, in: screen)
+        precondition(selectionPlacement.minX == wideSelection.minX)
+        precondition(!selectionPlacement.intersects(wideSelection))
 
         print("Panel placement checks passed")
     }

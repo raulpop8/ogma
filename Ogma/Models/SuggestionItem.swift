@@ -79,4 +79,9 @@ enum SuggestionItem: Identifiable {
         if case .emoji = self { return 34 }
         return 46
     }
+
+    var insertionText: String {
+        let text = replacement
+        return text.last?.isWhitespace == true ? text : text + " "
+    }
 }

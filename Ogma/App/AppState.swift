@@ -30,6 +30,7 @@ final class AppState: ObservableObject {
     private let monitor = GlobalKeyboardMonitor()
     private let panel = SuggestionPanelController()
     private var activePID: pid_t?
+    private var lastTextClick: (pid: pid_t, point: CGPoint, time: Date)?
     private var pendingPanelUpdate: DispatchWorkItem?
     private var panelUpdateRevision = 0
 
@@ -38,6 +39,9 @@ final class AppState: ObservableObject {
         monitor.onPointerDown = { [weak self] event in
             guard let self, !self.panel.containsPointerEvent(event) else { return }
             self.cancel()
+            if let pid = self.accessibility.focusedApplicationPID() {
+                self.lastTextClick = (pid, event.location, Date.now)
+            }
         }
         panel.onSelect = { [weak self] item in self?.choose(item) }
         refreshPermissionsAndMonitor()
@@ -172,10 +176,14 @@ final class AppState: ObservableObject {
         accessibility.prepareForTyping(in: pid)
         guard !accessibility.isSecureField() else { cancel(); return }
         pendingPanelUpdate = nil
-        let anchor = accessibility.typingAnchor()
+        let textAnchor = accessibility.typingAnchor()
+        let click = lastTextClick.flatMap { saved -> CGPoint? in
+            saved.pid == pid && Date.now.timeIntervalSince(saved.time) < 120 ? saved.point : nil
+        }
+        let anchor = textAnchor ?? accessibility.fallbackAnchor(in: pid, click: click)
         panel.update(results, anchor: anchor)
         // An Electron accessibility tree can take another frame to appear.
-        if anchor == nil && !panel.hasResults && !results.isEmpty && retry {
+        if textAnchor == nil && !results.isEmpty && retry {
             let update = DispatchWorkItem { [weak self] in
                 self?.presentSuggestions(results, mode: mode, query: query, pid: pid, revision: revision, retry: false)
             }

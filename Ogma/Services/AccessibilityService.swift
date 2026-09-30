@@ -61,6 +61,26 @@ final class AccessibilityService {
         return nil
     }
 
+    func fallbackAnchor(in pid: pid_t, click: CGPoint?) -> TypingAnchor? {
+        // Window metadata needs no screen recording permission and remains
+        // available when a web editor does not expose its accessibility tree.
+        let windows = CGWindowListCopyWindowInfo([.optionOnScreenOnly, .excludeDesktopElements],
+                                                kCGNullWindowID) as? [[String: Any]] ?? []
+        for window in windows {
+            guard (window[kCGWindowOwnerPID as String] as? NSNumber)?.int32Value == pid,
+                  (window[kCGWindowLayer as String] as? NSNumber)?.intValue == 0,
+                  let bounds = window[kCGWindowBounds as String] as? NSDictionary,
+                  let rect = CGRect(dictionaryRepresentation: bounds),
+                  rect.width > 0, rect.height > 0 else { continue }
+            return SuggestionPanelPositioner.fallbackAnchor(in: rect, click: click)
+        }
+        guard let primary = NSScreen.screens.first else { return nil }
+        let visible = primary.visibleFrame
+        let rect = CGRect(x: visible.minX, y: primary.frame.maxY - visible.maxY,
+                          width: visible.width, height: visible.height)
+        return SuggestionPanelPositioner.fallbackAnchor(in: rect, click: nil)
+    }
+
     private func caretAnchor(_ element: AXUIElement) -> TypingAnchor? {
         var selectedRange: CFTypeRef?
         guard AXUIElementCopyAttributeValue(element, kAXSelectedTextRangeAttribute as CFString, &selectedRange) == .success,

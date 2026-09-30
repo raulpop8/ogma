@@ -30,10 +30,20 @@ struct TypingAnchorTests {
         precondition(panel.frame == originalFrame)
 
         controller.hide()
-        controller.update([.date], anchor: nil)
-        precondition(!controller.hasResults)
-        precondition(controller.selectedItem == nil)
-        precondition(!panel.isVisible)
+        let window = CGRect(x: caret.minX - 50, y: caret.minY - 100, width: 600, height: 400)
+        let fallback = SuggestionPanelPositioner.fallbackAnchor(in: window, click: nil)
+        controller.update([.date], anchor: fallback)
+        RunLoop.main.run(until: Date.now.addingTimeInterval(0.2))
+        precondition(controller.hasResults)
+        precondition(controller.selectedItem?.id == "date")
+        let fallbackFrame = panel.frame
+        for _ in 0..<20 {
+            controller.update([.date], anchor: fallback)
+            precondition(panel.frame == fallbackFrame)
+        }
+        controller.update([.date], anchor: TypingAnchor(rect: caret, source: .caret))
+        controller.update([.date], anchor: fallback)
+        precondition(panel.frame == originalFrame)
         print("Text anchor stability checks passed")
     }
 }

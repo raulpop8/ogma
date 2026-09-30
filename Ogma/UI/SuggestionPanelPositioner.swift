@@ -1,7 +1,7 @@
 import CoreGraphics
 
 struct TypingAnchor {
-    enum Source { case caret, textField }
+    enum Source: Int { case window, textClick, textField, caret }
     let rect: CGRect
     let source: Source
     var characterWidth: CGFloat = 8
@@ -18,6 +18,7 @@ struct SuggestionAnchorTracker {
 
     mutating func update(_ candidate: TypingAnchor?) {
         guard let candidate, candidate.isValid else { return }
+        if let anchor, candidate.source.rawValue < anchor.source.rawValue { return }
         // A temporarily unavailable caret must not replace a precise location
         // with the bounds of the whole field during the same typing session.
         if candidate.source == .textField, let anchor, anchor.source == .caret,
@@ -31,6 +32,18 @@ struct SuggestionAnchorTracker {
 }
 
 enum SuggestionPanelPositioner {
+    // This approximate anchor is used only when the editor supplies no text
+    // geometry. A click is recorded once, never sampled as the pointer moves.
+    static func fallbackAnchor(in window: CGRect, click: CGPoint?) -> TypingAnchor {
+        if let click, window.insetBy(dx: 8, dy: 8).contains(click) {
+            return TypingAnchor(rect: CGRect(x: click.x, y: click.y - 10, width: 0, height: 20),
+                                source: .textClick)
+        }
+        return TypingAnchor(rect: CGRect(x: window.minX + min(24, window.width / 4),
+                                        y: window.maxY - min(80, window.height / 3),
+                                        width: 0, height: 20), source: .window)
+    }
+
     static func frame(for caret: CGRect, size: CGSize, in visibleFrame: CGRect,
                       characterWidth: CGFloat = 8) -> CGRect {
         let gap = clamp(characterWidth.isFinite ? characterWidth : 8, 6, 14) * 2.5

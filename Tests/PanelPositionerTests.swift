@@ -61,6 +61,20 @@ struct PanelPositionerTests {
         tracker.update(TypingAnchor(rect: secondCaret, source: .textField))
         precondition(tracker.anchor?.rect == secondCaret)
 
+        let fallbackWindow = CGRect(x: 100, y: 100, width: 800, height: 600)
+        let clicked = CGPoint(x: 250, y: 620)
+        let clickAnchor = SuggestionPanelPositioner.fallbackAnchor(in: fallbackWindow, click: clicked)
+        precondition(clickAnchor.source == .textClick && clickAnchor.rect.midY == clicked.y)
+        let windowAnchor = SuggestionPanelPositioner.fallbackAnchor(in: fallbackWindow, click: CGPoint(x: 0, y: 0))
+        precondition(windowAnchor.source == .window && fallbackWindow.contains(windowAnchor.rect))
+        tracker.reset()
+        tracker.update(windowAnchor)
+        tracker.update(clickAnchor)
+        tracker.update(windowAnchor)
+        precondition(tracker.anchor?.rect == clickAnchor.rect)
+        tracker.update(exact)
+        tracker.update(clickAnchor)
+        precondition(tracker.anchor?.rect == exact.rect)
         print("Panel placement checks passed")
     }
 }

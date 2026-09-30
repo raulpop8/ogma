@@ -77,11 +77,25 @@
 
       header { min-height: 88px; }
 
-      .wordmark {
-        width: 104px;
-        height: 40px;
-        object-fit: contain;
-        object-position: left center;
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        color: var(--ink);
+        text-decoration: none;
+      }
+
+      .brand-icon {
+        display: block;
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+      }
+
+      .brand-name {
+        font-size: 21px;
+        font-weight: 750;
+        letter-spacing: -.025em;
       }
 
       .theme-toggle {
@@ -109,8 +123,8 @@
       }
       [data-theme="dark"] .theme-icon { color: #BDAAFF; transform: rotate(45deg); }
 
-      .wordmark, .hero-logo { transition: opacity .16s ease; }
-      .wordmark.is-switching, .hero-logo.is-switching { opacity: 0; }
+      .brand-icon { transition: opacity .16s ease; }
+      .brand-icon.is-switching { opacity: 0; }
 
       main {
         display: grid;
@@ -122,13 +136,6 @@
       .hero {
         width: min(100%, 760px);
         text-align: center;
-      }
-
-      .hero-logo {
-        display: block;
-        width: min(100%, 430px);
-        height: auto;
-        margin: 0 auto 25px;
       }
 
       .eyebrow {
@@ -143,12 +150,17 @@
       [data-theme="dark"] .eyebrow { color: #BDAAFF; }
 
       h1 {
-        margin: 0;
-        font-size: clamp(38px, 7vw, 62px);
-        font-weight: 600;
-        letter-spacing: -.055em;
-        line-height: 1.08;
+        max-width: 900px;
+        margin: 0 auto;
+        font-size: clamp(56px, 7.4vw, 88px);
+        font-weight: 800;
+        letter-spacing: .01em;
+        line-height: 1.04;
       }
+
+      h1 span { display: block; }
+
+      h1 span + span { margin-top: .04em; }
 
       .intro {
         max-width: 540px;
@@ -229,7 +241,8 @@
         header, footer { width: min(100% - 36px, 1120px); }
         header { min-height: 72px; }
         main { padding: 28px 20px 52px; }
-        .hero-logo { width: min(100%, 360px); margin-bottom: 20px; }
+        .brand-icon { width: 44px; height: 44px; }
+        h1 { font-size: clamp(42px, 10vw, 58px); }
         footer { min-height: 64px; }
       }
 
@@ -242,7 +255,10 @@
     <div class="page-shell">
       <header>
         <a href="./" aria-label="Ogma home">
-          <img class="wordmark" id="header-logo" src="assets/ogma-logo-light.svg" alt="Ogma">
+          <span class="brand">
+            <img class="brand-icon" id="header-logo" src="assets/ogma-icon-light.svg" alt="">
+            <span class="brand-name">Ogma</span>
+          </span>
         </a>
         <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode">
           <span class="theme-icon" id="theme-icon" aria-hidden="true">☾</span>
@@ -252,9 +268,8 @@
 
       <main>
         <section class="hero" aria-labelledby="hero-title">
-          <img class="hero-logo" id="hero-logo" src="assets/ogma-logo-light.svg" alt="Ogma — Type more. Effortlessly.">
           <p class="eyebrow">A little more flow in every day</p>
-          <h1 id="hero-title">Your words, within reach.</h1>
+          <h1 id="hero-title"><span>Your words,</span><span>within reach.</span></h1>
           <p class="intro">Bring up emoji as you type. Turn your most-used phrases into shortcuts. Ogma keeps both close from your menu bar.</p>
           <div class="actions">
             <a class="download" href="https://github.com/raulpop8/ogma/releases/latest">
@@ -283,11 +298,10 @@
         const favicon = document.getElementById('site-icon');
         const browserTheme = document.getElementById('theme-color');
         const headerLogo = document.getElementById('header-logo');
-        const heroLogo = document.getElementById('hero-logo');
         const systemTheme = matchMedia('(prefers-color-scheme: dark)');
 
-        function switchLogo(image, theme) {
-          const source = `assets/ogma-logo-${theme}.svg`;
+        function switchImage(image, asset, theme) {
+          const source = `assets/${asset}-${theme}.svg`;
           if (image.getAttribute('src') === source) return;
           image.classList.add('is-switching');
           window.setTimeout(() => {
@@ -310,8 +324,7 @@
           toggle.setAttribute('aria-label', `Switch to ${dark ? 'light' : 'dark'} mode`);
           favicon.href = `assets/ogma-favicon-${dark ? 'dark' : 'light'}.png?v=2`;
           browserTheme.content = dark ? '#101015' : '#F6F5F2';
-          switchLogo(headerLogo, theme);
-          switchLogo(heroLogo, theme);
+          switchImage(headerLogo, 'ogma-icon', theme);
           if (save) localStorage.setItem('ogma-theme', theme);
         }
 

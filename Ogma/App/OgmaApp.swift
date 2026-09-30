@@ -41,6 +41,10 @@ final class OgmaAppDelegate: NSObject, NSApplicationDelegate {
         NSLog("Ogma menu bar ready")
     }
 
+    func applicationDidBecomeActive(_ notification: Notification) {
+        state?.refreshPermissionsAndMonitor()
+    }
+
     private func updateMenu() {
         let menu = NSMenu()
         let toggle = NSMenuItem(title: "Enable Ogma", action: #selector(toggleEnabled), keyEquivalent: "")

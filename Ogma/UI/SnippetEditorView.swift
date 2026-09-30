@@ -7,10 +7,14 @@ struct SnippetEditorView: View {
     @State private var errorMessage: String?
 
     let snippet: TextSnippet?
+    let validationError: (String, String) -> SnippetStore.StoreError?
     let onSave: (String, String) throws -> Void
 
-    init(snippet: TextSnippet?, onSave: @escaping (String, String) throws -> Void) {
+    init(snippet: TextSnippet?,
+         validationError: @escaping (String, String) -> SnippetStore.StoreError?,
+         onSave: @escaping (String, String) throws -> Void) {
         self.snippet = snippet
+        self.validationError = validationError
         self.onSave = onSave
         _trigger = State(initialValue: snippet?.trigger ?? "")
         _replacement = State(initialValue: snippet?.replacement ?? "")
@@ -46,6 +50,14 @@ struct SnippetEditorView: View {
                     .overlay(RoundedRectangle(cornerRadius: 7).stroke(.separator, lineWidth: 0.5))
             }
 
+            if let error = currentValidationError,
+               !trigger.isEmpty || !replacement.isEmpty {
+                Text(error.localizedDescription)
+                    .font(.caption)
+                    .foregroundStyle(.red)
+                    .accessibilityLabel("Shortcut error: \(error.localizedDescription)")
+            }
+
             HStack {
                 Spacer()
                 Button("Cancel") { dismiss() }
@@ -57,7 +69,7 @@ struct SnippetEditorView: View {
                         errorMessage = error.localizedDescription
                     }
                 }
-                .disabled(trigger.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || replacement.isEmpty)
+                .disabled(currentValidationError != nil)
             }
         }
         .padding(22)
@@ -70,5 +82,9 @@ struct SnippetEditorView: View {
         } message: {
             Text(errorMessage ?? "")
         }
+    }
+
+    private var currentValidationError: SnippetStore.StoreError? {
+        validationError(trigger, replacement)
     }
 }

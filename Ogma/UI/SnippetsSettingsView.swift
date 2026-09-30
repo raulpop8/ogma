@@ -10,6 +10,17 @@ struct SnippetsSettingsView: View {
     @State private var editor: EditorDestination?
     @State private var pendingDelete: TextSnippet?
     @State private var errorMessage: String?
+    @State private var searchText = ""
+
+    private var visibleSnippets: [TextSnippet] {
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        return store.snippets
+            .filter { snippet in
+                query.isEmpty || snippet.trigger.localizedCaseInsensitiveContains(query)
+                    || snippet.replacement.localizedCaseInsensitiveContains(query)
+            }
+            .sorted { $0.trigger < $1.trigger }
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -32,35 +43,62 @@ struct SnippetsSettingsView: View {
                 ContentUnavailableView("No Shortcuts Yet", systemImage: "text.quote",
                     description: Text("Add a shortcut such as /email or /thanks."))
             } else {
-                List {
-                    ForEach(store.snippets.sorted { $0.trigger < $1.trigger }) { snippet in
-                        HStack(spacing: 12) {
-                            Toggle("", isOn: Binding(
-                                get: { snippet.isEnabled },
-                                set: { enabled in perform { try store.setEnabled(enabled, for: snippet.id) } }
-                            ))
-                            .labelsHidden()
-                            .accessibilityLabel("Enable /\(snippet.trigger)")
-                            VStack(alignment: .leading, spacing: 3) {
-                                Text("/" + snippet.trigger)
-                                    .font(.system(.body, design: .monospaced).weight(.medium))
-                                Text(snippet.replacement.replacingOccurrences(of: "\n", with: " ↵ "))
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                                    .lineLimit(1)
-                            }
-                            Spacer(minLength: 8)
-                            Button("Edit") { editor = EditorDestination(snippet: snippet) }
-                            Button("Delete") { pendingDelete = snippet }
+                HStack(spacing: 8) {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundStyle(.secondary)
+                    TextField("Search shortcuts or text", text: $searchText)
+                        .textFieldStyle(.plain)
+                    if !searchText.isEmpty {
+                        Button {
+                            searchText = ""
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
                         }
-                        .padding(.vertical, 3)
+                        .buttonStyle(.plain)
+                        .foregroundStyle(.secondary)
+                        .accessibilityLabel("Clear search")
+                    }
+                }
+                .padding(8)
+                .background(.quaternary.opacity(0.35), in: RoundedRectangle(cornerRadius: 7))
+
+                if visibleSnippets.isEmpty {
+                    ContentUnavailableView("No Matching Shortcuts", systemImage: "magnifyingglass",
+                        description: Text("Try a different shortcut name or replacement text."))
+                } else {
+                    List {
+                        ForEach(visibleSnippets) { snippet in
+                            HStack(spacing: 12) {
+                                Toggle("", isOn: Binding(
+                                    get: { snippet.isEnabled },
+                                    set: { enabled in perform { try store.setEnabled(enabled, for: snippet.id) } }
+                                ))
+                                .labelsHidden()
+                                .accessibilityLabel("Enable /\(snippet.trigger)")
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text("/" + snippet.trigger)
+                                        .font(.system(.body, design: .monospaced).weight(.medium))
+                                    Text(snippet.replacement)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                        .lineLimit(2)
+                                        .help(snippet.replacement)
+                                }
+                                Spacer(minLength: 8)
+                                Button("Edit") { editor = EditorDestination(snippet: snippet) }
+                                Button("Delete") { pendingDelete = snippet }
+                            }
+                            .padding(.vertical, 3)
+                        }
                     }
                 }
             }
         }
         .padding(20)
         .sheet(item: $editor) { destination in
-            SnippetEditorView(snippet: destination.snippet) { trigger, replacement in
+            SnippetEditorView(snippet: destination.snippet, validationError: { trigger, replacement in
+                store.validationError(id: destination.snippet?.id, trigger: trigger, replacement: replacement)
+            }) { trigger, replacement in
                 try store.save(id: destination.snippet?.id, trigger: trigger, replacement: replacement)
             }
         }

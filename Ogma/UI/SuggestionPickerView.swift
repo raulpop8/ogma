@@ -49,13 +49,17 @@ struct SuggestionPickerView: View {
                 .scrollIndicators(.visible)
                 if isGrid, model.results.indices.contains(model.selection) {
                     Divider()
-                    Text(model.results[model.selection].title)
-                        .font(.system(size: 11))
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 6)
-                        .frame(height: 23)
+                    HStack(spacing: 8) {
+                        Text(model.results[model.selection].title)
+                            .lineLimit(1)
+                        Spacer(minLength: 0)
+                        Text("\(model.selection + 1) / \(model.results.count)")
+                            .monospacedDigit()
+                    }
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 6)
+                    .frame(height: 23)
                 }
             }
             .onChange(of: model.selection) { _, index in
@@ -91,7 +95,9 @@ struct SuggestionPickerView: View {
         .frame(height: item.rowHeight - 2)
         .background(index == model.selection ? Color.accentColor.opacity(0.18) : .clear,
                     in: RoundedRectangle(cornerRadius: 6))
+        .overlay(selectionOutline(for: index))
         .contentShape(Rectangle())
+        .accessibilityValue(index == model.selection ? "Selected" : "")
         .onTapGesture { choose(index) }
     }
 
@@ -103,10 +109,18 @@ struct SuggestionPickerView: View {
             .frame(height: 46)
             .background(index == model.selection ? Color.accentColor.opacity(0.18) : .clear,
                         in: RoundedRectangle(cornerRadius: 6))
+            .overlay(selectionOutline(for: index))
             .contentShape(Rectangle())
             .help(item.title)
             .accessibilityLabel(item.title)
+            .accessibilityValue(index == model.selection ? "Selected" : "")
             .onTapGesture { choose(index) }
+    }
+
+    private func selectionOutline(for index: Int) -> some View {
+        RoundedRectangle(cornerRadius: 6)
+            .stroke(index == model.selection ? Color.accentColor.opacity(0.75) : .clear, lineWidth: 1)
+            .allowsHitTesting(false)
     }
 
     private func choose(_ index: Int) {

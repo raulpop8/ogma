@@ -2,7 +2,7 @@ import Combine
 import Foundation
 
 final class SnippetStore: ObservableObject {
-    enum StoreError: LocalizedError {
+    enum StoreError: LocalizedError, Equatable {
         case invalidTrigger
         case emptyReplacement
         case duplicateTrigger
@@ -36,16 +36,10 @@ final class SnippetStore: ObservableObject {
 
     func save(id: UUID? = nil, trigger rawTrigger: String, replacement: String) throws {
         guard loadError == nil else { throw StoreError.unavailable }
-        let trigger = rawTrigger.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        let allowed = CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyz0123456789_+-")
-        guard (1...32).contains(trigger.count),
-              trigger.unicodeScalars.allSatisfy({ allowed.contains($0) }) else {
-            throw StoreError.invalidTrigger
+        if let error = validationError(id: id, trigger: rawTrigger, replacement: replacement) {
+            throw error
         }
-        guard !replacement.isEmpty else { throw StoreError.emptyReplacement }
-        guard !snippets.contains(where: { $0.trigger == trigger && $0.id != id }) else {
-            throw StoreError.duplicateTrigger
-        }
+        let trigger = normalizedTrigger(rawTrigger)
         var updated = snippets
         if let id, let index = updated.firstIndex(where: { $0.id == id }) {
             updated[index].trigger = trigger
@@ -54,6 +48,25 @@ final class SnippetStore: ObservableObject {
             updated.append(TextSnippet(id: UUID(), trigger: trigger, replacement: replacement, isEnabled: true))
         }
         try persist(updated)
+    }
+
+    func validationError(id: UUID? = nil, trigger rawTrigger: String, replacement: String) -> StoreError? {
+        if loadError != nil { return .unavailable }
+        let trigger = normalizedTrigger(rawTrigger)
+        let allowed = CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyz0123456789_+-")
+        guard (1...32).contains(trigger.count),
+              trigger.unicodeScalars.allSatisfy({ allowed.contains($0) }) else {
+            return .invalidTrigger
+        }
+        guard !snippets.contains(where: { $0.trigger == trigger && $0.id != id }) else {
+            return .duplicateTrigger
+        }
+        guard !replacement.isEmpty else { return .emptyReplacement }
+        return nil
+    }
+
+    private func normalizedTrigger(_ trigger: String) -> String {
+        trigger.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
     }
 
     func setEnabled(_ enabled: Bool, for id: UUID) throws {

@@ -6,6 +6,19 @@ final class AppState: ObservableObject {
     @Published private(set) var accessibilityGranted = false
     @Published private(set) var keyboardMonitoringReady = false
 
+    enum KeyboardStatus: Equatable {
+        case disabled
+        case accessibilityRequired
+        case ready
+        case listenerUnavailable
+    }
+
+    var keyboardStatus: KeyboardStatus {
+        if !isEnabled { return .disabled }
+        if !accessibilityGranted { return .accessibilityRequired }
+        return keyboardMonitoringReady ? .ready : .listenerUnavailable
+    }
+
     private let permissions = PermissionService()
     private let accessibility = AccessibilityService()
     private let insertion = TextInsertionService()

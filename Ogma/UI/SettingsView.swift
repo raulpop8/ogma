@@ -53,12 +53,17 @@ struct SettingsView: View {
                 HStack {
                     Text("Keyboard listener")
                     Spacer()
-                    Text(state.keyboardMonitoringReady ? "Ready" : "Unavailable")
+                    Text(keyboardStatusTitle)
                         .foregroundStyle(state.keyboardMonitoringReady ? .green : .secondary)
                 }
-                Text("Accessibility lets Ogma detect shortcuts and insert text in the active app.")
+                Text(keyboardStatusDescription)
                     .foregroundStyle(.secondary)
-                Button("Check Permissions Again") { state.refreshPermissionsAndMonitor() }
+                if state.keyboardStatus == .listenerUnavailable {
+                    Text("Quit and reopen Ogma. If this continues, restart your Mac and check Accessibility access again.")
+                        .foregroundStyle(.secondary)
+                }
+                Button("Check Again") { state.refreshPermissionsAndMonitor() }
+                    .disabled(state.keyboardStatus == .disabled)
             }
         }
         .formStyle(.grouped)
@@ -71,6 +76,28 @@ struct SettingsView: View {
             Text(granted ? "Granted" : "Required")
                 .foregroundStyle(granted ? .green : .secondary)
             if !granted { Button("Open Settings", action: action) }
+        }
+    }
+
+    private var keyboardStatusTitle: String {
+        switch state.keyboardStatus {
+        case .disabled: "Off"
+        case .accessibilityRequired: "Needs access"
+        case .ready: "Ready"
+        case .listenerUnavailable: "Could not start"
+        }
+    }
+
+    private var keyboardStatusDescription: String {
+        switch state.keyboardStatus {
+        case .disabled:
+            "Turn on Ogma to listen for shortcuts while you type."
+        case .accessibilityRequired:
+            "Ogma needs Accessibility access to detect shortcuts and insert text in the active app. Choose Open Settings, enable Ogma, then return here and choose Check Again."
+        case .ready:
+            "Ogma can detect shortcuts and insert text in the active app."
+        case .listenerUnavailable:
+            "Accessibility access is granted, but Ogma could not start its keyboard listener. Choose Check Again to retry."
         }
     }
 }

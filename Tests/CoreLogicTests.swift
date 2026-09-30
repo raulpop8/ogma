@@ -48,6 +48,10 @@ struct CoreLogicTests {
         assert((try? store.save(trigger: "EMAIL", replacement: "duplicate")) == nil)
         let snippetSearch = SnippetSearchService()
         assert(snippetSearch.search("em", in: store.snippets).first?.replacement == "hello@example.com")
+        assert(store.validationError(trigger: "date", replacement: "fixed") == .reservedTrigger)
+        assert(SuggestionItem.date.title == "/date")
+        let testDate = Date(timeIntervalSince1970: 12 * 60 * 60)
+        assert(DateDisplayFormat.iso8601.display(testDate) == "1970-01-01")
         let email = store.snippets.first { $0.trigger == "email" }!
         try store.setEnabled(false, for: email.id)
         assert(snippetSearch.search("em", in: store.snippets).isEmpty)

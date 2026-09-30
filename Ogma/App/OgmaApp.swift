@@ -39,6 +39,24 @@ final class OgmaAppDelegate: NSObject, NSApplicationDelegate {
         state = AppState()
         updateMenu()
         NSLog("Ogma menu bar ready")
+        DispatchQueue.main.async { [weak self] in self?.showPreviousCrashNotice() }
+    }
+
+    private func showPreviousCrashNotice() {
+        guard state.crashReports.hasUnacknowledgedReport else { return }
+        NSApp.activate(ignoringOtherApps: true)
+        let alert = NSAlert()
+        alert.messageText = "Ogma quit unexpectedly"
+        alert.informativeText = "A crash report from a previous session is available. You can review it and choose to share it to help diagnose the problem."
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: "Review Report…")
+        alert.addButton(withTitle: "Not Now")
+        let response = alert.runModal()
+        state.crashReports.acknowledgeLatestReport()
+        if response == .alertFirstButtonReturn {
+            openSettings()
+            state.crashReports.reviewLatestReport()
+        }
     }
 
     func applicationDidBecomeActive(_ notification: Notification) {

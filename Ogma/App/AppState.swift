@@ -24,6 +24,7 @@ final class AppState: ObservableObject {
     private let insertion = TextInsertionService()
     private let search = EmojiSearchService()
     let snippetStore = SnippetStore()
+    let crashReports = CrashReportService()
     private let snippetSearch = SnippetSearchService()
     private let trigger = TriggerEngine()
     private let monitor = GlobalKeyboardMonitor()
@@ -97,7 +98,6 @@ final class AppState: ObservableObject {
         if !wasActive {
             guard case .character(let character) = key,
                   character == ":" || character == "/" else { return false }
-            if character == "/" && !snippetStore.snippets.contains(where: \.isEnabled) { return false }
         }
         guard let pid = accessibility.focusedApplicationPID(),
               pid != ProcessInfo.processInfo.processIdentifier else { cancel(); return false }
@@ -112,7 +112,9 @@ final class AppState: ObservableObject {
             case .emoji:
                 results = search.search(query, limit: search.items.count).map(SuggestionItem.emoji)
             case .snippet:
-                results = snippetSearch.search(query, in: snippetStore.snippets).map(SuggestionItem.snippet)
+                let saved = snippetSearch.search(query, in: snippetStore.snippets.filter { $0.trigger != "date" })
+                    .map(SuggestionItem.snippet)
+                results = "date".contains(query) ? [.date] + saved : saved
             }
             panel.update(results, caretRect: accessibility.caretRect())
             return false

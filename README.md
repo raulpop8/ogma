@@ -10,7 +10,9 @@ Download the [latest signed DMG](https://github.com/raulpop8/ogma/releases/lates
 
 - Type `:` to browse emoji, or `:joy` to search. Scroll, use arrow keys, or click a result; Return inserts it and Escape closes the picker. Choose a five-column grid or named list in **Settings → Emoji picker**.
 - Create a text shortcut in **Settings → Shortcuts**. For a shortcut named `email`, type `/email` in another app to insert its saved text.
+- Type `/date` and press Return to insert today's date. Choose its display format in **Settings → General → Date shortcut**.
 - Choose **Check for Updates…** from the Ogma menu to install a new release.
+- Settings shows the installed version and build number. If Ogma crashes, the next launch offers to review the macOS crash report. You can also use **Settings → General → Crash reports** to save or share the latest log as an attachment; Ogma does not upload reports automatically.
 
 Ogma stores shortcuts locally in Application Support. It does not store typing history or use the clipboard. The bundled emoji catalog comes from [Unicode Emoji 17.0](https://www.unicode.org/Public/17.0.0/emoji/emoji-test.txt); its [license](Ogma/Resources/UNICODE_LICENSE.txt) is included with the app.
 

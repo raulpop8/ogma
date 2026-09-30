@@ -13,6 +13,11 @@ final class SuggestionPickerModel: ObservableObject {
     @Published var revision = 0
     var onSelect: ((SuggestionItem) -> Void)?
 
+    var selectedItem: SuggestionItem? {
+        guard results.indices.contains(selection) else { return nil }
+        return results[selection]
+    }
+
     var showsEmoji: Bool {
         guard let first = results.first else { return false }
         if case .emoji = first { return true }
@@ -34,23 +39,23 @@ struct SuggestionPickerView: View {
                 ScrollView(.vertical) {
                     if isGrid {
                         LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 2), count: 5), spacing: 2) {
-                            ForEach(model.results.indices, id: \.self) { index in
-                                gridCell(at: index).id(index)
+                            ForEach(model.results) { item in
+                                gridCell(for: item).id(item.id)
                             }
                         }
                     } else {
                         LazyVStack(spacing: 2) {
-                            ForEach(model.results.indices, id: \.self) { index in
-                                listRow(at: index).id(index)
+                            ForEach(model.results) { item in
+                                listRow(for: item).id(item.id)
                             }
                         }
                     }
                 }
                 .scrollIndicators(.visible)
-                if isGrid, model.results.indices.contains(model.selection) {
+                if isGrid, let selectedItem = model.selectedItem {
                     Divider()
                     HStack(spacing: 8) {
-                        Text(model.results[model.selection].title)
+                        Text(selectedItem.title)
                             .lineLimit(1)
                         Spacer(minLength: 0)
                         Text("\(model.selection + 1) / \(model.results.count)")
@@ -62,10 +67,13 @@ struct SuggestionPickerView: View {
                     .frame(height: 23)
                 }
             }
-            .onChange(of: model.selection) { _, index in
-                withAnimation(.easeOut(duration: 0.12)) { scroll.scrollTo(index, anchor: .center) }
+            .onChange(of: model.selection) { _, _ in
+                guard let item = model.selectedItem else { return }
+                withAnimation(.easeOut(duration: 0.12)) { scroll.scrollTo(item.id, anchor: .center) }
             }
-            .onChange(of: model.revision) { _, _ in scroll.scrollTo(0, anchor: .top) }
+            .onChange(of: model.revision) { _, _ in
+                if let first = model.results.first { scroll.scrollTo(first.id, anchor: .top) }
+            }
         }
         .padding(6)
         .frame(width: 300)
@@ -73,8 +81,7 @@ struct SuggestionPickerView: View {
         .overlay(RoundedRectangle(cornerRadius: 10).stroke(.separator, lineWidth: 0.5))
     }
 
-    private func listRow(at index: Int) -> some View {
-        let item = model.results[index]
+    private func listRow(for item: SuggestionItem) -> some View {
         return HStack(spacing: 10) {
             leadingView(for: item).frame(width: 30)
             VStack(alignment: .leading, spacing: 2) {
@@ -93,38 +100,41 @@ struct SuggestionPickerView: View {
         }
         .padding(.horizontal, 8)
         .frame(height: item.rowHeight - 2)
-        .background(index == model.selection ? Color.accentColor.opacity(0.18) : .clear,
+        .background(isSelected(item) ? Color.accentColor.opacity(0.18) : .clear,
                     in: RoundedRectangle(cornerRadius: 6))
-        .overlay(selectionOutline(for: index))
+        .overlay(selectionOutline(for: item))
         .contentShape(Rectangle())
-        .accessibilityValue(index == model.selection ? "Selected" : "")
-        .onTapGesture { choose(index) }
+        .accessibilityValue(isSelected(item) ? "Selected" : "")
+        .onTapGesture { choose(item) }
     }
 
-    private func gridCell(at index: Int) -> some View {
-        let item = model.results[index]
+    private func gridCell(for item: SuggestionItem) -> some View {
         return Text(item.replacement)
             .font(.system(size: 27))
             .frame(maxWidth: .infinity)
             .frame(height: 46)
-            .background(index == model.selection ? Color.accentColor.opacity(0.18) : .clear,
+            .background(isSelected(item) ? Color.accentColor.opacity(0.18) : .clear,
                         in: RoundedRectangle(cornerRadius: 6))
-            .overlay(selectionOutline(for: index))
+            .overlay(selectionOutline(for: item))
             .contentShape(Rectangle())
             .help(item.title)
             .accessibilityLabel(item.title)
-            .accessibilityValue(index == model.selection ? "Selected" : "")
-            .onTapGesture { choose(index) }
+            .accessibilityValue(isSelected(item) ? "Selected" : "")
+            .onTapGesture { choose(item) }
     }
 
-    private func selectionOutline(for index: Int) -> some View {
+    private func isSelected(_ item: SuggestionItem) -> Bool {
+        model.selectedItem?.id == item.id
+    }
+
+    private func selectionOutline(for item: SuggestionItem) -> some View {
         RoundedRectangle(cornerRadius: 6)
-            .stroke(index == model.selection ? Color.accentColor.opacity(0.75) : .clear, lineWidth: 1)
+            .stroke(isSelected(item) ? Color.accentColor.opacity(0.75) : .clear, lineWidth: 1)
             .allowsHitTesting(false)
     }
 
-    private func choose(_ index: Int) {
-        guard model.results.indices.contains(index) else { return }
+    private func choose(_ item: SuggestionItem) {
+        guard let index = model.results.firstIndex(where: { $0.id == item.id }) else { return }
         model.selection = index
         model.onSelect?(model.results[index])
     }
@@ -136,6 +146,10 @@ struct SuggestionPickerView: View {
             Text(emoji.emoji).font(.system(size: 21))
         case .snippet:
             Image(systemName: "text.quote")
+                .font(.system(size: 15))
+                .foregroundStyle(.secondary)
+        case .date:
+            Image(systemName: "calendar")
                 .font(.system(size: 15))
                 .foregroundStyle(.secondary)
         }

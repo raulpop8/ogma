@@ -6,6 +6,7 @@ final class SnippetStore: ObservableObject {
         case invalidTrigger
         case emptyReplacement
         case duplicateTrigger
+        case reservedTrigger
         case unavailable
 
         var errorDescription: String? {
@@ -13,6 +14,7 @@ final class SnippetStore: ObservableObject {
             case .invalidTrigger: return "Use 1–32 letters, numbers, underscores, +, or - for a shortcut."
             case .emptyReplacement: return "Enter replacement text."
             case .duplicateTrigger: return "That shortcut already exists."
+            case .reservedTrigger: return "/date is a built-in shortcut. Choose another name."
             case .unavailable: return "Saved shortcuts could not be read. The file was left unchanged."
             }
         }
@@ -58,6 +60,7 @@ final class SnippetStore: ObservableObject {
               trigger.unicodeScalars.allSatisfy({ allowed.contains($0) }) else {
             return .invalidTrigger
         }
+        guard trigger != "date" else { return .reservedTrigger }
         guard !snippets.contains(where: { $0.trigger == trigger && $0.id != id }) else {
             return .duplicateTrigger
         }

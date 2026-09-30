@@ -25,8 +25,7 @@ final class SuggestionPanelController {
     }
 
     var selectedItem: SuggestionItem? {
-        guard model.results.indices.contains(model.selection) else { return nil }
-        return model.results[model.selection]
+        model.selectedItem
     }
 
     var hasResults: Bool { !model.results.isEmpty }

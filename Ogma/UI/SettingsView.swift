@@ -4,6 +4,7 @@ struct SettingsView: View {
     @ObservedObject var state: AppState
     @Environment(\.colorScheme) private var colorScheme
     @AppStorage("emojiPickerLayout") private var emojiPickerLayout = EmojiPickerLayout.grid.rawValue
+    @AppStorage(DateDisplayFormat.preferenceKey) private var dateDisplayFormat = DateDisplayFormat.systemShort.rawValue
 
     var body: some View {
         TabView {
@@ -25,6 +26,7 @@ struct SettingsView: View {
                     .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Ogma").font(.headline)
+                    Text("Version \(AppVersion.display)").font(.caption).foregroundStyle(.secondary)
                     Text("Emoji and text shortcuts").foregroundStyle(.secondary)
                 }
             }
@@ -33,7 +35,16 @@ struct SettingsView: View {
                     get: { state.isEnabled },
                     set: { state.setEnabled($0) }
                 ))
-                Text("Type : for emoji or / for a saved text shortcut. Use arrow keys to choose, Return to insert, and Escape to cancel.")
+                Text("Type : for emoji, /date for today’s date, or / for a saved text shortcut. Use arrow keys to choose, Return to insert, and Escape to cancel.")
+                    .foregroundStyle(.secondary)
+            }
+            Section("Date shortcut") {
+                Picker("Display", selection: $dateDisplayFormat) {
+                    ForEach(DateDisplayFormat.allCases, id: \.rawValue) { format in
+                        Text("\(format.title) · \(format.display())").tag(format.rawValue)
+                    }
+                }
+                Text("Type /date and press Return to insert today’s date in the selected format.")
                     .foregroundStyle(.secondary)
             }
             Section("Emoji picker") {
@@ -65,6 +76,7 @@ struct SettingsView: View {
                 Button("Check Again") { state.refreshPermissionsAndMonitor() }
                     .disabled(state.keyboardStatus == .disabled)
             }
+            CrashReportSettingsView(service: state.crashReports)
         }
         .formStyle(.grouped)
     }

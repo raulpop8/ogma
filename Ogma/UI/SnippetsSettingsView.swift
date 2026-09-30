@@ -83,6 +83,11 @@ struct SnippetsSettingsView: View {
                                         .foregroundStyle(.secondary)
                                         .lineLimit(2)
                                         .help(snippet.replacement)
+                                    if snippet.trigger == "date" {
+                                        Text("Reserved for the current date. Rename this shortcut to use its saved text.")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
                                 }
                                 Spacer(minLength: 8)
                                 Button("Edit") { editor = EditorDestination(snippet: snippet) }

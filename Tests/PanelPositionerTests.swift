@@ -9,13 +9,13 @@ struct PanelPositionerTests {
         let writingCaret = CGRect(x: 300, y: 400, width: 1, height: 20)
         let clearOfText = SuggestionPanelPositioner.frame(for: writingCaret, size: size, in: screen)
         precondition(clearOfText.minX == writingCaret.minX)
-        precondition(clearOfText.maxY == writingCaret.minY - 4)
+        precondition(clearOfText.maxY == writingCaret.minY - 20)
         precondition(!clearOfText.intersects(writingCaret))
 
         let rightCaret = CGRect(x: 1150, y: 400, width: 1, height: 20)
         let edgePlacement = SuggestionPanelPositioner.frame(for: rightCaret, size: size, in: screen)
         precondition(edgePlacement.maxX == screen.maxX)
-        precondition(edgePlacement.maxY == rightCaret.minY - 4)
+        precondition(edgePlacement.maxY == rightCaret.minY - 20)
 
         let narrowScreen = CGRect(x: 0, y: 0, width: 300, height: 800)
         let middleCaret = CGRect(x: 150, y: 400, width: 1, height: 20)
@@ -36,6 +36,30 @@ struct PanelPositionerTests {
         let selectionPlacement = SuggestionPanelPositioner.frame(for: wideSelection, size: size, in: screen)
         precondition(selectionPlacement.minX == wideSelection.minX)
         precondition(!selectionPlacement.intersects(wideSelection))
+
+        let largeText = SuggestionPanelPositioner.frame(for: writingCaret, size: size, in: screen, characterWidth: 12)
+        precondition(largeText.maxY == writingCaret.minY - 30)
+
+        var tracker = SuggestionAnchorTracker()
+        tracker.update(nil)
+        precondition(tracker.anchor == nil)
+        let exact = TypingAnchor(rect: writingCaret, source: .caret, characterWidth: 7)
+        tracker.update(exact)
+        // Missing geometry while typing preserves the location, with no mouse input.
+        for _ in 0..<10 { tracker.update(nil) }
+        precondition(tracker.anchor?.rect == writingCaret)
+        tracker.update(TypingAnchor(rect: CGRect(x: 200, y: 300, width: 500, height: 200), source: .textField))
+        precondition(tracker.anchor?.rect == writingCaret)
+        let advancedCaret = writingCaret.offsetBy(dx: 14, dy: 0)
+        tracker.update(TypingAnchor(rect: advancedCaret, source: .caret))
+        precondition(tracker.anchor?.rect == advancedCaret)
+        tracker.update(TypingAnchor(rect: CGRect(x: CGFloat.nan, y: 0, width: 0, height: 20), source: .caret))
+        precondition(tracker.anchor?.rect == advancedCaret)
+        tracker.reset()
+        tracker.update(nil)
+        precondition(tracker.anchor == nil)
+        tracker.update(TypingAnchor(rect: secondCaret, source: .textField))
+        precondition(tracker.anchor?.rect == secondCaret)
 
         print("Panel placement checks passed")
     }

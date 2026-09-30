@@ -30,6 +30,8 @@ final class AppState: ObservableObject {
     private let monitor = GlobalKeyboardMonitor()
     private let panel = SuggestionPanelController()
     private var activePID: pid_t?
+    private var pendingPanelUpdate: DispatchWorkItem?
+    private var panelUpdateRevision = 0
 
     init() {
         monitor.handler = { [weak self] event in self?.handle(event) ?? false }
@@ -116,32 +118,79 @@ final class AppState: ObservableObject {
                     .map(SuggestionItem.snippet)
                 results = "date".contains(query) ? [.date] + saved : saved
             }
-            panel.update(results, caretRect: accessibility.caretRect())
+            schedulePanelUpdate(results, mode: mode, query: query, pid: pid)
             return false
         case .navigate(let direction):
+            flushPanelUpdate()
             guard panel.hasResults else { cancel(); return false }
             panel.moveSelection(direction)
             return true
         case .navigateHorizontal(let direction):
+            flushPanelUpdate()
             guard panel.hasResults else { cancel(); return false }
             panel.moveSelection(direction, horizontal: true)
             return true
         case .accept:
+            flushPanelUpdate()
             guard let item = panel.selectedItem else { cancel(); return false }
             choose(item)
             return true
         case .cancelled(let consume):
-            panel.hide()
-            activePID = nil
+            cancel()
             return consume
         case .none: return false
         }
     }
 
     private func cancel() {
+        pendingPanelUpdate?.cancel()
+        pendingPanelUpdate = nil
+        panelUpdateRevision += 1
         trigger.reset()
         activePID = nil
         panel.hide()
+    }
+
+    private func schedulePanelUpdate(_ results: [SuggestionItem], mode: TriggerEngine.Mode, query: String, pid: pid_t) {
+        pendingPanelUpdate?.cancel()
+        panelUpdateRevision += 1
+        let revision = panelUpdateRevision
+        let update = DispatchWorkItem { [weak self] in
+            self?.presentSuggestions(results, mode: mode, query: query, pid: pid, revision: revision, retry: true)
+        }
+        pendingPanelUpdate = update
+        // The event tap runs before the editor receives the key. Wait for the
+        // character to reach the editor before reading its insertion point.
+        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(25), execute: update)
+    }
+
+    private func presentSuggestions(_ results: [SuggestionItem], mode: TriggerEngine.Mode, query: String,
+                                    pid: pid_t, revision: Int, retry: Bool) {
+        guard panelUpdateRevision == revision, trigger.mode == mode, trigger.query == query,
+              activePID == pid else { return }
+        guard accessibility.focusedApplicationPID() == pid else { cancel(); return }
+        accessibility.prepareForTyping(in: pid)
+        guard !accessibility.isSecureField() else { cancel(); return }
+        pendingPanelUpdate = nil
+        let anchor = accessibility.typingAnchor()
+        panel.update(results, anchor: anchor)
+        // An Electron accessibility tree can take another frame to appear.
+        if anchor == nil && !panel.hasResults && !results.isEmpty && retry {
+            let update = DispatchWorkItem { [weak self] in
+                self?.presentSuggestions(results, mode: mode, query: query, pid: pid, revision: revision, retry: false)
+            }
+            pendingPanelUpdate = update
+            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(75), execute: update)
+        }
+    }
+
+    private func flushPanelUpdate() {
+        let update = pendingPanelUpdate
+        update?.perform()
+        update?.cancel()
+        pendingPanelUpdate?.cancel()
+        pendingPanelUpdate = nil
+        panelUpdateRevision += 1
     }
 
     private func choose(_ item: SuggestionItem) {

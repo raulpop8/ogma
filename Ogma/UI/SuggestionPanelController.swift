@@ -4,6 +4,7 @@ import SwiftUI
 final class SuggestionPanelController {
     private let model = SuggestionPickerModel()
     private let panel: NSPanel
+    private var anchorTracker = SuggestionAnchorTracker()
     var onSelect: ((SuggestionItem) -> Void)?
 
     init() {
@@ -25,16 +26,17 @@ final class SuggestionPanelController {
     }
 
     var selectedItem: SuggestionItem? {
-        model.selectedItem
+        panel.isVisible ? model.selectedItem : nil
     }
 
-    var hasResults: Bool { !model.results.isEmpty }
+    var hasResults: Bool { panel.isVisible && !model.results.isEmpty }
 
-    func update(_ results: [SuggestionItem], caretRect: CGRect?) {
+    func update(_ results: [SuggestionItem], anchor: TypingAnchor?) {
+        anchorTracker.update(anchor)
         model.results = results
         model.selection = 0
         model.revision += 1
-        guard !results.isEmpty else { hide(); return }
+        guard !results.isEmpty else { hide(preserveAnchor: true); return }
         let layout = EmojiPickerLayout(rawValue: UserDefaults.standard.string(forKey: "emojiPickerLayout") ?? "grid") ?? .grid
         let showsEmoji: Bool
         if case .emoji = results[0] { showsEmoji = true } else { showsEmoji = false }
@@ -44,16 +46,16 @@ final class SuggestionPanelController {
         } else {
             height = results.prefix(5).reduce(CGFloat(12)) { $0 + $1.rowHeight }
         }
-        let caret = appKitCaretRect(caretRect)
-        let anchor = caret.map { CGPoint(x: $0.midX, y: $0.midY) } ?? NSEvent.mouseLocation
-        let screen = NSScreen.screens.first(where: { $0.frame.contains(anchor) })
-            ?? NSScreen.main ?? NSScreen.screens.first
-        guard let screen else { return }
-        let target = caret ?? CGRect(x: anchor.x, y: anchor.y, width: 1, height: 1)
+        guard let textAnchor = anchorTracker.anchor,
+              let target = appKitCaretRect(textAnchor.rect),
+              let screen = NSScreen.screens.first(where: {
+                  $0.frame.contains(CGPoint(x: target.midX, y: target.midY))
+              }) else { hide(preserveAnchor: true); return }
         let frame = SuggestionPanelPositioner.frame(
             for: target,
             size: CGSize(width: 300, height: height),
-            in: screen.visibleFrame
+            in: screen.visibleFrame,
+            characterWidth: textAnchor.characterWidth
         )
         if panel.isVisible {
             panel.setFrame(frame, display: true)
@@ -92,7 +94,10 @@ final class SuggestionPanelController {
         }
     }
 
-    func hide() { panel.orderOut(nil) }
+    func hide(preserveAnchor: Bool = false) {
+        panel.orderOut(nil)
+        if !preserveAnchor { anchorTracker.reset() }
+    }
 
     func containsPointerEvent(_ event: CGEvent) -> Bool {
         guard panel.isVisible, let primary = NSScreen.screens.first else { return false }

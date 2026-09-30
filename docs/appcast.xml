@@ -3,12 +3,12 @@
     <channel>
         <title>Ogma</title>
         <item>
-            <title>0.1.4</title>
-            <pubDate>Wed, 30 Sep 2026 14:08:03 +0300</pubDate>
-            <sparkle:version>5</sparkle:version>
-            <sparkle:shortVersionString>0.1.4</sparkle:shortVersionString>
+            <title>0.1.5</title>
+            <pubDate>Wed, 30 Sep 2026 14:21:28 +0300</pubDate>
+            <sparkle:version>6</sparkle:version>
+            <sparkle:shortVersionString>0.1.5</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/raulpop8/ogma/releases/download/v0.1.4/Ogma-0.1.4.dmg" length="2182368" type="application/octet-stream" sparkle:edSignature="f+agoKpKA6xO/hh+iNmGi0Aj4lG6MWvUZAZLIURGqnYjzvYy6Qms8KP5ENArc5CSW2Ii36ugLSdfsBwtIr69BQ=="/>
+            <enclosure url="https://github.com/raulpop8/ogma/releases/download/v0.1.5/Ogma-0.1.5.dmg" length="2186861" type="application/octet-stream" sparkle:edSignature="M1BWb4f5pkfX6CF+RyofZ6SOODvFcJlBzpEo57MdS7xnsvFqeICBlTvqWS7LgeUHCdaINublAz4ux/jcJ27iCQ=="/>
         </item>
     </channel>
 </rss>

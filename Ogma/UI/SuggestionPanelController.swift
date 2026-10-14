@@ -20,6 +20,7 @@ final class SuggestionPanelController {
         panel.hasShadow = true
         panel.hidesOnDeactivate = false
         panel.ignoresMouseEvents = false
+        panel.acceptsMouseMovedEvents = true
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         panel.contentView = NSHostingView(rootView: SuggestionPickerView(model: model))
         model.onSelect = { [weak self] item in self?.onSelect?(item) }
@@ -92,6 +93,7 @@ final class SuggestionPanelController {
         } else {
             model.selection = (model.selection + delta + count) % count
         }
+        model.selectionScrollRevision += 1
     }
 
     func hide(preserveAnchor: Bool = false) {

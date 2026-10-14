@@ -32,6 +32,9 @@ struct CoreLogicTests {
         assert(search.search("coffee").first?.emoji == "☕")
         assert(search.search("cofee").first?.emoji == "☕")
         assert(search.search("dog").first?.emoji == "🐶")
+        for query in ["hug", "hugs", "hugging", "hugging_face", " HUG "] {
+            assert(search.search(query).first?.emoji == "🤗")
+        }
         assert(search.search("party").count <= 8)
         assert(search.search("joy", limit: 40).map(\.emoji).contains("🤣"))
         assert(search.search("").count == 8)

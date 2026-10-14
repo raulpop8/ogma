@@ -273,8 +273,16 @@
     "id": "1f917",
     "emoji": "🤗",
     "name": "smiling face with open hands",
-    "keywords": [],
-    "aliases": []
+    "keywords": [
+      "embrace",
+      "cuddle"
+    ],
+    "aliases": [
+      "hug",
+      "hugs",
+      "hugging",
+      "hugging_face"
+    ]
   },
   {
     "id": "1f92d",

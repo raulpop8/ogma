@@ -10,6 +10,7 @@ enum EmojiPickerLayout: String, CaseIterable {
 final class SuggestionPickerModel: ObservableObject {
     @Published var results: [SuggestionItem] = []
     @Published var selection = 0
+    @Published var selectionScrollRevision = 0
     @Published var revision = 0
     var onSelect: ((SuggestionItem) -> Void)?
 
@@ -22,6 +23,12 @@ final class SuggestionPickerModel: ObservableObject {
         guard let first = results.first else { return false }
         if case .emoji = first { return true }
         return false
+    }
+
+    func hover(_ item: SuggestionItem) {
+        guard let index = results.firstIndex(where: { $0.id == item.id }), selection != index else { return }
+        // Hover updates the name and Return target without scrolling under the pointer.
+        selection = index
     }
 }
 
@@ -67,7 +74,7 @@ struct SuggestionPickerView: View {
                     .frame(height: 23)
                 }
             }
-            .onChange(of: model.selection) { _, _ in
+            .onChange(of: model.selectionScrollRevision) { _, _ in
                 guard let item = model.selectedItem else { return }
                 withAnimation(.easeOut(duration: 0.12)) { scroll.scrollTo(item.id, anchor: .center) }
             }
@@ -105,6 +112,9 @@ struct SuggestionPickerView: View {
         .overlay(selectionOutline(for: item))
         .contentShape(Rectangle())
         .accessibilityValue(isSelected(item) ? "Selected" : "")
+        .onHover { hovering in
+            if hovering { model.hover(item) }
+        }
         .onTapGesture { choose(item) }
     }
 
@@ -120,6 +130,9 @@ struct SuggestionPickerView: View {
             .help(item.title)
             .accessibilityLabel(item.title)
             .accessibilityValue(isSelected(item) ? "Selected" : "")
+            .onHover { hovering in
+                if hovering { model.hover(item) }
+            }
             .onTapGesture { choose(item) }
     }
 

@@ -9,6 +9,16 @@ struct SuggestionPickerTests {
         let items = try JSONDecoder().decode([EmojiItem].self,
             from: Data(contentsOf: URL(fileURLWithPath: "Ogma/Resources/emoji.json")))
         let model = SuggestionPickerModel()
+        model.results = Array(items.prefix(40)).map(SuggestionItem.emoji)
+        var inserted = false
+        model.onSelect = { _ in inserted = true }
+        let hovered = model.results[12]
+        model.hover(hovered)
+        assert(model.selectedItem?.id == hovered.id)
+        assert(model.selectionScrollRevision == 0)
+        assert(!inserted)
+        model.hover(.date)
+        assert(model.selectedItem?.id == hovered.id)
         let host = NSHostingView(rootView: SuggestionPickerView(model: model))
         let panel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 300, height: 276),
             styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
@@ -25,6 +35,7 @@ struct SuggestionPickerTests {
                                 Array(items.prefix(40)).map(SuggestionItem.emoji)] {
                     model.results = results
                     model.selection = max(0, results.count - 1)
+                    model.selectionScrollRevision += 1
                     host.layoutSubtreeIfNeeded()
                     model.selection = 0
                     model.revision += 1

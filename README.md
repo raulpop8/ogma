@@ -8,7 +8,7 @@ Download the [latest signed DMG](https://github.com/raulpop8/ogma/releases/lates
 
 ## Use
 
-- Type `:` to browse emoji, or `:joy` to search. Scroll, use arrow keys, or click a result; Return inserts it and Escape closes the picker. Choose a five-column grid or named list in **Settings → Emoji picker**.
+- Type `:` to browse emoji, or `:joy` to search (`:hug` finds 🤗). Scroll or use arrow keys, or hover over an emoji to highlight it and see its name. Click a result or press Return to insert it; Escape closes the picker. Choose a five-column grid or named list in **Settings → Emoji picker**.
 - Create a text shortcut in **Settings → Shortcuts**. For a shortcut named `email`, type `/email` in another app to insert its saved text.
 - Type `/date` and press Return to insert today's date. Choose its display format in **Settings → General → Date shortcut**.
 - The picker stays beside the typing text with about two or three character widths of space. It uses the insertion point or focused text field, retaining the last text position through temporary lookup failures. It never follows the mouse pointer. Inserting an emoji or shortcut adds a trailing space unless the text already ends with whitespace.

@@ -13,6 +13,12 @@ from pathlib import Path
 import xml.etree.ElementTree as ET
 
 
+# CLDR tags cartwheels as "happy", which floods mood searches with gymnastics
+# and skin-tone variants. Apply this exclusion to the entire emoji family on
+# every import, while retaining its activity-specific keywords.
+KEYWORD_EXCLUSIONS = {"1f938": {"happy"}}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("annotations", nargs=2, type=Path)
@@ -34,7 +40,9 @@ def main():
         terms = annotations.get(item["emoji"].replace("\ufe0f", ""), set())
         covered += bool(terms)
         existing = item["keywords"]
-        item["keywords"] = existing + sorted(terms - set(existing))
+        excluded = KEYWORD_EXCLUSIONS.get(item["id"].split("-")[0], set())
+        item["keywords"] = [term for term in existing + sorted(terms - set(existing))
+                            if term not in excluded]
     catalog.write_text(json.dumps(items, ensure_ascii=False, indent=2) + "\n")
     print(f"CLDR keywords merged for {covered}/{len(items)} emoji")
 

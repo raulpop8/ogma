@@ -71,6 +71,26 @@ struct CoreLogicTests {
         assert(!search.search("tired", limit: items.count).contains { $0.emoji == "🛞" })
         assert(search.search("smile", limit: items.count).allSatisfy { $0.emoji != "😢" })
         assert(search.search("zzzzzzzz", limit: items.count).isEmpty)
+        let happy = search.search("happy", limit: items.count)
+        let unhappyExamples = ["😐", "😑", "😒", "😧", "😢", "😭", "😞", "😩", "😤", "😡", "😠"]
+        assert(!happy.contains { unhappyExamples.contains($0.emoji) })
+        assert(!happy.contains { $0.name.contains("cartwheeling") })
+        assert(search.search("unhappy", limit: items.count).contains { $0.emoji == "😢" })
+        assert(search.search("cartwheel", limit: items.count).contains { $0.emoji == "🤸" })
+        // Match words within phrases, but never fragments inside unrelated
+        // words (happy/unhappy, red/tired, art/heart).
+        let boundarySearch = EmojiSearchService(items: [
+            EmojiItem(id: "happy", emoji: "😀", name: "happy face", keywords: [], aliases: []),
+            EmojiItem(id: "unhappy", emoji: "😢", name: "unhappy face", keywords: [], aliases: []),
+            EmojiItem(id: "red", emoji: "🔴", name: "red circle", keywords: [], aliases: []),
+            EmojiItem(id: "tired", emoji: "😫", name: "tired face", keywords: [], aliases: []),
+            EmojiItem(id: "art", emoji: "🎨", name: "artist palette", keywords: [], aliases: []),
+            EmojiItem(id: "heart", emoji: "❤️", name: "red heart", keywords: [], aliases: []),
+        ])
+        assert(boundarySearch.search("happy").map(\.id) == ["happy"])
+        assert(Set(boundarySearch.search("red").map(\.id)) == ["red", "heart"])
+        assert(boundarySearch.search("art").map(\.id) == ["art"])
+        assert(boundarySearch.search("face").count == 3)
 
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: directory) }

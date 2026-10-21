@@ -51,7 +51,6 @@ final class EmojiSearchService {
             else if entry.name.hasPrefix(query) { score = 3 }
             else if keywords.contains(query) { score = 4 }
             else if queryWords.allSatisfy({ word in entry.words.contains(where: { $0.hasPrefix(word) }) }) { score = 5 }
-            else if (aliases + [entry.name] + keywords).contains(where: { $0.contains(query) }) { score = 6 }
             else { return nil }
             return (entry.item, score, offset)
         }

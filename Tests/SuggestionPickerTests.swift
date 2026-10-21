@@ -9,6 +9,20 @@ struct SuggestionPickerTests {
         let items = try JSONDecoder().decode([EmojiItem].self,
             from: Data(contentsOf: URL(fileURLWithPath: "Ogma/Resources/emoji.json")))
         let model = SuggestionPickerModel()
+        let quickPicks = items.suffix(5).enumerated().map { index, item in
+            EmojiQuickPick(item: item, kind: index < 2 ? .recent : .frequent, isPersonalized: true)
+        }
+        model.updateResults(items.map(SuggestionItem.emoji), quickPicks: quickPicks)
+        assert(model.results.count == items.count)
+        assert(Set(model.results.map(\.id)).count == items.count)
+        assert(model.results.prefix(5).map(\.replacement) == quickPicks.map { $0.item.emoji })
+        assert(model.quickPick(for: model.results[0])?.kind == .recent)
+        assert(model.quickPick(for: model.results[4])?.kind == .frequent)
+        model.hover(model.results[4])
+        assert(model.selectedItem?.replacement == quickPicks[4].item.emoji)
+        model.updateResults(Array(items.prefix(10)).map(SuggestionItem.emoji))
+        assert(model.quickPicks.isEmpty && model.results.count == 10)
+        assert(model.results.allSatisfy { model.quickPick(for: $0) == nil })
         model.results = Array(items.prefix(40)).map(SuggestionItem.emoji)
         var inserted = false
         model.onSelect = { _ in inserted = true }
@@ -25,6 +39,12 @@ struct SuggestionPickerTests {
         panel.contentView = host
         panel.orderFrontRegardless()
         defer { panel.orderOut(nil) }
+
+        model.updateResults(Array(items.prefix(40)).map(SuggestionItem.emoji), quickPicks: quickPicks)
+        host.layoutSubtreeIfNeeded()
+        model.hover(model.results[4])
+        host.layoutSubtreeIfNeeded()
+        model.updateResults(Array(items.prefix(40)).map(SuggestionItem.emoji))
 
         let shortcut = SuggestionItem.snippet(TextSnippet(id: UUID(), trigger: "email",
             replacement: "hello@example.com", isEnabled: true))

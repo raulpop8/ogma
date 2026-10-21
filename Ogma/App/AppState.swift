@@ -23,6 +23,7 @@ final class AppState: ObservableObject {
     private let accessibility = AccessibilityService()
     private let insertion = TextInsertionService()
     private let search = EmojiSearchService()
+    private lazy var emojiUsage = EmojiUsageStore(items: search.items)
     let snippetStore = SnippetStore()
     let crashReports = CrashReportService()
     private let snippetSearch = SnippetSearchService()
@@ -186,7 +187,8 @@ final class AppState: ObservableObject {
         }
         let textAnchor = accessibility.typingAnchor(click: click)
         let anchor = textAnchor ?? accessibility.fallbackAnchor(in: pid, click: click)
-        panel.update(results, anchor: anchor)
+        let quickPicks = mode == .emoji && query.isEmpty ? emojiUsage.quickPicks() : []
+        panel.update(results, anchor: anchor, quickPicks: quickPicks)
         // An Electron accessibility tree can take several frames to expose a
         // caret. Retry approximate field anchors as well as missing geometry.
         if textAnchor?.source != .caret && !results.isEmpty && retry < 3 {
@@ -211,6 +213,8 @@ final class AppState: ObservableObject {
         guard trigger.isActive else { return }
         let length = trigger.typedLength
         cancel()
-        _ = insertion.replaceTrigger(length: length, with: item.insertionText)
+        if insertion.replaceTrigger(length: length, with: item.insertionText), case .emoji(let emoji) = item {
+            emojiUsage.record(emoji)
+        }
     }
 }

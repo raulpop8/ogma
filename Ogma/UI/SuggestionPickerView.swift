@@ -12,7 +12,21 @@ final class SuggestionPickerModel: ObservableObject {
     @Published var selection = 0
     @Published var selectionScrollRevision = 0
     @Published var revision = 0
+    @Published private(set) var quickPicks: [EmojiQuickPick] = []
     var onSelect: ((SuggestionItem) -> Void)?
+
+    func updateResults(_ results: [SuggestionItem], quickPicks: [EmojiQuickPick] = []) {
+        self.quickPicks = quickPicks
+        let quickIDs = Set(quickPicks.map { "emoji:\($0.id)" })
+        self.results = quickPicks.map { .emoji($0.item) } + results.filter { !quickIDs.contains($0.id) }
+        selection = 0
+        revision += 1
+    }
+
+    func quickPick(for item: SuggestionItem) -> EmojiQuickPick? {
+        guard case .emoji(let emoji) = item else { return nil }
+        return quickPicks.first { $0.id == emoji.id }
+    }
 
     var selectedItem: SuggestionItem? {
         guard results.indices.contains(selection) else { return nil }
@@ -107,11 +121,12 @@ struct SuggestionPickerView: View {
         }
         .padding(.horizontal, 8)
         .frame(height: item.rowHeight - 2)
-        .background(isSelected(item) ? Color.accentColor.opacity(0.18) : .clear,
+        .background(backgroundColor(for: item),
                     in: RoundedRectangle(cornerRadius: 6))
         .overlay(selectionOutline(for: item))
         .contentShape(Rectangle())
-        .accessibilityValue(isSelected(item) ? "Selected" : "")
+        .help(tooltip(for: item))
+        .accessibilityValue(accessibilityValue(for: item))
         .onHover { hovering in
             if hovering { model.hover(item) }
         }
@@ -123,13 +138,13 @@ struct SuggestionPickerView: View {
             .font(.system(size: 27))
             .frame(maxWidth: .infinity)
             .frame(height: 46)
-            .background(isSelected(item) ? Color.accentColor.opacity(0.18) : .clear,
+            .background(backgroundColor(for: item),
                         in: RoundedRectangle(cornerRadius: 6))
             .overlay(selectionOutline(for: item))
             .contentShape(Rectangle())
-            .help(item.title)
+            .help(tooltip(for: item))
             .accessibilityLabel(item.title)
-            .accessibilityValue(isSelected(item) ? "Selected" : "")
+            .accessibilityValue(accessibilityValue(for: item))
             .onHover { hovering in
                 if hovering { model.hover(item) }
             }
@@ -138,6 +153,25 @@ struct SuggestionPickerView: View {
 
     private func isSelected(_ item: SuggestionItem) -> Bool {
         model.selectedItem?.id == item.id
+    }
+
+    private func backgroundColor(for item: SuggestionItem) -> Color {
+        if let pick = model.quickPick(for: item) {
+            return pick.kind == .recent
+                ? .yellow.opacity(isSelected(item) ? 0.28 : 0.16)
+                : .blue.opacity(isSelected(item) ? 0.24 : 0.12)
+        }
+        return isSelected(item) ? .accentColor.opacity(0.18) : .clear
+    }
+
+    private func tooltip(for item: SuggestionItem) -> String {
+        guard let pick = model.quickPick(for: item) else { return item.title }
+        return "\(item.title) · \(pick.label)"
+    }
+
+    private func accessibilityValue(for item: SuggestionItem) -> String {
+        [model.quickPick(for: item)?.label, isSelected(item) ? "Selected" : nil]
+            .compactMap { $0 }.joined(separator: ", ")
     }
 
     private func selectionOutline(for item: SuggestionItem) -> some View {

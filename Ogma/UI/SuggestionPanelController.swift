@@ -32,20 +32,18 @@ final class SuggestionPanelController {
 
     var hasResults: Bool { panel.isVisible && !model.results.isEmpty }
 
-    func update(_ results: [SuggestionItem], anchor: TypingAnchor?) {
+    func update(_ results: [SuggestionItem], anchor: TypingAnchor?, quickPicks: [EmojiQuickPick] = []) {
         anchorTracker.update(anchor)
-        model.results = results
-        model.selection = 0
-        model.revision += 1
-        guard !results.isEmpty else { hide(preserveAnchor: true); return }
+        model.updateResults(results, quickPicks: quickPicks)
+        guard !model.results.isEmpty else { hide(preserveAnchor: true); return }
         let layout = EmojiPickerLayout(rawValue: UserDefaults.standard.string(forKey: "emojiPickerLayout") ?? "grid") ?? .grid
         let showsEmoji: Bool
-        if case .emoji = results[0] { showsEmoji = true } else { showsEmoji = false }
+        if case .emoji = model.results[0] { showsEmoji = true } else { showsEmoji = false }
         let height: CGFloat
         if showsEmoji && layout == .grid {
-            height = CGFloat(min(5, (results.count + 4) / 5) * 48 + 36)
+            height = CGFloat(min(5, (model.results.count + 4) / 5) * 48 + 36)
         } else {
-            height = results.prefix(5).reduce(CGFloat(12)) { $0 + $1.rowHeight }
+            height = model.results.prefix(5).reduce(CGFloat(12)) { $0 + $1.rowHeight }
         }
         guard let textAnchor = anchorTracker.anchor,
               let target = appKitCaretRect(textAnchor.rect),

@@ -67,6 +67,23 @@ struct TypingAnchorTests {
         controller.update([.date], anchor: field)
         precondition(panel.frame == originalFrame)
         controller.hide()
+        let examples = ["😀", "😂", "😊", "😎", "🤗", "🐶"].enumerated().map { index, emoji in
+            EmojiItem(id: "quick-test-\(index)", emoji: emoji, name: emoji, keywords: [], aliases: [])
+        }
+        let quickPicks = examples.prefix(5).enumerated().map { index, item in
+            EmojiQuickPick(item: item, kind: index < 2 ? .recent : .frequent, isPersonalized: true)
+        }
+        UserDefaults.standard.setVolatileDomain(["emojiPickerLayout": "grid"], forName: UserDefaults.argumentDomain)
+        controller.update(examples.map(SuggestionItem.emoji), anchor: typed, quickPicks: quickPicks)
+        RunLoop.main.run(until: Date.now.addingTimeInterval(0.2))
+        precondition(controller.selectedItem?.replacement == "😀")
+        controller.moveSelection(1, horizontal: true)
+        precondition(controller.selectedItem?.replacement == "😂")
+        controller.moveSelection(1)
+        precondition(controller.selectedItem?.replacement == "🐶")
+        controller.moveSelection(-1)
+        precondition(controller.selectedItem?.replacement == "😀")
+        controller.hide()
         print("Text anchor stability checks passed")
     }
 }

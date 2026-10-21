@@ -39,8 +39,13 @@ final class AppState: ObservableObject {
         monitor.onPointerDown = { [weak self] event in
             guard let self, !self.panel.containsPointerEvent(event) else { return }
             self.cancel()
-            if let pid = self.accessibility.focusedApplicationPID() {
-                self.lastTextClick = (pid, event.location, Date.now)
+            let point = event.location
+            let time = Date.now
+            // The event tap sees the click before macOS activates its target
+            // app. Capture the owner after focus settles when switching apps.
+            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(25)) { [weak self] in
+                guard let self, let pid = self.accessibility.focusedApplicationPID() else { return }
+                self.lastTextClick = (pid, point, time)
             }
         }
         panel.onSelect = { [weak self] item in self?.choose(item) }
@@ -160,7 +165,7 @@ final class AppState: ObservableObject {
         panelUpdateRevision += 1
         let revision = panelUpdateRevision
         let update = DispatchWorkItem { [weak self] in
-            self?.presentSuggestions(results, mode: mode, query: query, pid: pid, revision: revision, retry: true)
+            self?.presentSuggestions(results, mode: mode, query: query, pid: pid, revision: revision, retry: 0)
         }
         pendingPanelUpdate = update
         // The event tap runs before the editor receives the key. Wait for the
@@ -169,26 +174,27 @@ final class AppState: ObservableObject {
     }
 
     private func presentSuggestions(_ results: [SuggestionItem], mode: TriggerEngine.Mode, query: String,
-                                    pid: pid_t, revision: Int, retry: Bool) {
+                                    pid: pid_t, revision: Int, retry: Int) {
         guard panelUpdateRevision == revision, trigger.mode == mode, trigger.query == query,
               activePID == pid else { return }
         guard accessibility.focusedApplicationPID() == pid else { cancel(); return }
         accessibility.prepareForTyping(in: pid)
         guard !accessibility.isSecureField() else { cancel(); return }
         pendingPanelUpdate = nil
-        let textAnchor = accessibility.typingAnchor()
         let click = lastTextClick.flatMap { saved -> CGPoint? in
             saved.pid == pid && Date.now.timeIntervalSince(saved.time) < 120 ? saved.point : nil
         }
+        let textAnchor = accessibility.typingAnchor(click: click)
         let anchor = textAnchor ?? accessibility.fallbackAnchor(in: pid, click: click)
         panel.update(results, anchor: anchor)
-        // An Electron accessibility tree can take another frame to appear.
-        if textAnchor == nil && !results.isEmpty && retry {
+        // An Electron accessibility tree can take several frames to expose a
+        // caret. Retry approximate field anchors as well as missing geometry.
+        if textAnchor?.source != .caret && !results.isEmpty && retry < 3 {
             let update = DispatchWorkItem { [weak self] in
-                self?.presentSuggestions(results, mode: mode, query: query, pid: pid, revision: revision, retry: false)
+                self?.presentSuggestions(results, mode: mode, query: query, pid: pid, revision: revision, retry: retry + 1)
             }
             pendingPanelUpdate = update
-            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(75), execute: update)
+            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(75 * (retry + 1)), execute: update)
         }
     }
 

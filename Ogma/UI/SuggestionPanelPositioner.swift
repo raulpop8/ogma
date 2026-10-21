@@ -1,7 +1,7 @@
 import CoreGraphics
 
 struct TypingAnchor {
-    enum Source: Int { case window, textClick, textField, caret }
+    enum Source: Int { case window, textField, textClick, caret }
     let rect: CGRect
     let source: Source
     var characterWidth: CGFloat = 8
@@ -19,12 +19,6 @@ struct SuggestionAnchorTracker {
     mutating func update(_ candidate: TypingAnchor?) {
         guard let candidate, candidate.isValid else { return }
         if let anchor, candidate.source.rawValue < anchor.source.rawValue { return }
-        // A temporarily unavailable caret must not replace a precise location
-        // with the bounds of the whole field during the same typing session.
-        if candidate.source == .textField, let anchor, anchor.source == .caret,
-           candidate.rect.insetBy(dx: -2, dy: -2).contains(CGPoint(x: anchor.rect.midX, y: anchor.rect.midY)) {
-            return
-        }
         anchor = candidate
     }
 
@@ -32,6 +26,31 @@ struct SuggestionAnchorTracker {
 }
 
 enum SuggestionPanelPositioner {
+    static func isUsableCaret(_ rect: CGRect, field: CGRect?, window: CGRect?) -> Bool {
+        guard TypingAnchor(rect: rect, source: .caret).isValid,
+              rect.width <= rect.height, rect.height <= 160 else { return false }
+        let center = CGPoint(x: rect.midX, y: rect.midY)
+        // Editors sometimes return a non-empty placeholder rectangle at the
+        // screen origin, or the bounds of an entire document, as a caret.
+        for container in [field, window].compactMap({ $0 }) {
+            guard container.insetBy(dx: -2, dy: -2).contains(center) else { return false }
+        }
+        return true
+    }
+
+    static func fieldAnchor(in field: CGRect, click: CGPoint?) -> TypingAnchor {
+        if let click, field.contains(click) {
+            return TypingAnchor(rect: CGRect(x: click.x, y: click.y - 10, width: 0, height: 20),
+                                source: .textClick)
+        }
+        // Field bounds describe the whole editor, not its insertion point.
+        // Use a line-sized anchor so a tall editor cannot push the panel into
+        // a screen corner. A later real caret always takes precedence.
+        let height = min(field.height, 24)
+        return TypingAnchor(rect: CGRect(x: field.midX, y: field.midY - height / 2,
+                                        width: 0, height: height), source: .textField)
+    }
+
     // This approximate anchor is used only when the editor supplies no text
     // geometry. A click is recorded once, never sampled as the pointer moves.
     static func fallbackAnchor(in window: CGRect, click: CGPoint?) -> TypingAnchor {
@@ -39,8 +58,8 @@ enum SuggestionPanelPositioner {
             return TypingAnchor(rect: CGRect(x: click.x, y: click.y - 10, width: 0, height: 20),
                                 source: .textClick)
         }
-        return TypingAnchor(rect: CGRect(x: window.minX + min(24, window.width / 4),
-                                        y: window.maxY - min(80, window.height / 3),
+        return TypingAnchor(rect: CGRect(x: window.midX,
+                                        y: window.midY - 10,
                                         width: 0, height: 20), source: .window)
     }
 

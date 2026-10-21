@@ -31,7 +31,7 @@ final class AccessibilityService {
         if result == .success || result == .attributeUnsupported { preparedPID = pid }
     }
 
-    func typingAnchor() -> TypingAnchor? {
+    func typingAnchor(click: CGPoint? = nil) -> TypingAnchor? {
         guard AXIsProcessTrusted(), let element = focusedElement() else { return nil }
         var candidates = [element]
         var current = element
@@ -47,21 +47,29 @@ final class AccessibilityService {
             AXUIElementCopyAttributeValue(candidate, kAXSubroleAttribute as CFString, &subrole)
             if subrole as? String == "AXSecureTextField" { return nil }
         }
+        let window = focusedWindowRect()
+        // Ignore off-window field bounds too, otherwise a stale ancestor can
+        // reject the real caret or become a bogus fallback itself.
+        let field = candidates.compactMap { fieldRect($0) }.first { rect in
+            window.map { $0.insetBy(dx: -2, dy: -2).contains(CGPoint(x: rect.midX, y: rect.midY)) } ?? true
+        }
         for candidate in candidates {
-            if let caret = caretAnchor(candidate) { return caret }
-            if let rect = markerRect(candidate), rect.width <= rect.height {
+            if let caret = caretAnchor(candidate, field: field, window: window) { return caret }
+            if let rect = markerRect(candidate),
+               SuggestionPanelPositioner.isUsableCaret(rect, field: field, window: window) {
                 return TypingAnchor(rect: rect, source: .caret)
             }
         }
-        for candidate in candidates {
-            if let rect = fieldRect(candidate) {
-                return TypingAnchor(rect: rect, source: .textField)
-            }
+        if let field {
+            return SuggestionPanelPositioner.fieldAnchor(in: field, click: click)
         }
         return nil
     }
 
     func fallbackAnchor(in pid: pid_t, click: CGPoint?) -> TypingAnchor? {
+        if let window = focusedWindowRect() {
+            return SuggestionPanelPositioner.fallbackAnchor(in: window, click: click)
+        }
         // Window metadata needs no screen recording permission and remains
         // available when a web editor does not expose its accessibility tree.
         let windows = CGWindowListCopyWindowInfo([.optionOnScreenOnly, .excludeDesktopElements],
@@ -74,14 +82,12 @@ final class AccessibilityService {
                   rect.width > 0, rect.height > 0 else { continue }
             return SuggestionPanelPositioner.fallbackAnchor(in: rect, click: click)
         }
-        guard let primary = NSScreen.screens.first else { return nil }
-        let visible = primary.visibleFrame
-        let rect = CGRect(x: visible.minX, y: primary.frame.maxY - visible.maxY,
-                          width: visible.width, height: visible.height)
-        return SuggestionPanelPositioner.fallbackAnchor(in: rect, click: nil)
+        // Without even a target window there is no meaningful place to show
+        // suggestions. Retry instead of placing them on an arbitrary display.
+        return nil
     }
 
-    private func caretAnchor(_ element: AXUIElement) -> TypingAnchor? {
+    private func caretAnchor(_ element: AXUIElement, field: CGRect?, window: CGRect?) -> TypingAnchor? {
         var selectedRange: CFTypeRef?
         guard AXUIElementCopyAttributeValue(element, kAXSelectedTextRangeAttribute as CFString, &selectedRange) == .success,
               let selectedRange,
@@ -98,12 +104,14 @@ final class AccessibilityService {
         // Estimate an average glyph width from line height. Using the last
         // glyph's width would make the popup bounce between letters like i/m.
         let characterWidth = previousCharacter.map { min(14, max(6, $0.height * 0.4)) } ?? 8
-        if let rect = rangeRect(CFRange(location: index, length: 0), in: element), rect.width <= rect.height {
+        if let rect = rangeRect(CFRange(location: index, length: 0), in: element),
+           SuggestionPanelPositioner.isUsableCaret(rect, field: field, window: window) {
             return TypingAnchor(rect: rect, source: .caret, characterWidth: characterWidth)
         }
         // Some editors don't support zero-length ranges. Shortcut characters
         // are ASCII, so the preceding glyph's trailing edge gives their caret.
-        if let rect = previousCharacter, rect.width <= rect.height {
+        if let rect = previousCharacter,
+           SuggestionPanelPositioner.isUsableCaret(rect, field: field, window: window) {
             return TypingAnchor(rect: CGRect(x: rect.maxX, y: rect.minY, width: 0, height: rect.height),
                                 source: .caret, characterWidth: characterWidth)
         }
@@ -146,6 +154,16 @@ final class AccessibilityService {
         guard AXUIElementCopyAttributeValue(element, kAXRoleAttribute as CFString, &role) == .success,
               let role = role as? String,
               ["AXTextField", "AXTextArea", "AXComboBox"].contains(role) else { return nil }
+        return elementRect(element)
+    }
+
+    private func focusedWindowRect() -> CGRect? {
+        guard let pid = focusedApplicationPID(),
+              let window = elementAttribute(AXUIElementCreateApplication(pid), kAXFocusedWindowAttribute) else { return nil }
+        return elementRect(window)
+    }
+
+    private func elementRect(_ element: AXUIElement) -> CGRect? {
         var position: CFTypeRef?
         var size: CFTypeRef?
         guard AXUIElementCopyAttributeValue(element, kAXPositionAttribute as CFString, &position) == .success,

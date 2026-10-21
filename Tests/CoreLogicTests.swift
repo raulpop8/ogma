@@ -39,6 +39,38 @@ struct CoreLogicTests {
         assert(search.search("joy", limit: 40).map(\.emoji).contains("🤣"))
         assert(search.search("").count == 8)
         assert(search.search("", limit: items.count).count == items.count)
+        assert(search.search("sad", limit: 0).isEmpty)
+        assert(search.search("", limit: -1).isEmpty)
+        assert(items.allSatisfy { !$0.keywords.isEmpty })
+        let sad = search.search("sad", limit: items.count).map(\.emoji)
+        // The complete set shown in the WhatsApp examples, including related
+        // emotions whose Unicode names do not contain the word "sad".
+        let sadExamples = ["😭", "😔", "😢", "😞", "🥺", "😟", "😕", "🙁", "☹️",
+                           "😖", "😫", "😩", "😥", "😓", "😪", "😿", "💧", "💔"]
+        assert(sadExamples.allSatisfy { sad.contains($0) }, "Missing sad emoji: \(sadExamples.filter { !sad.contains($0) })")
+        assert(sad.count >= 18)
+        assert(!sad.contains("😀"))
+        assert(Set(sad).count == sad.count)
+        assert(search.search("sad", limit: 5).map(\.emoji) == Array(sad.prefix(5)))
+        let emotionExamples = [
+            "happy": ["😀", "😃", "😄", "😁", "🤣", "😂", "🥳"],
+            "angry": ["😠", "😡", "👿", "😤", "💢"],
+            "love": ["🥰", "😍", "😘", "💘"],
+            "tired": ["😫", "😪", "😴", "🥱"],
+            "celebrate": ["🥳", "🎉", "🎊", "🥂"],
+        ]
+        for (query, expected) in emotionExamples {
+            let results = search.search(query, limit: items.count).map(\.emoji)
+            assert(expected.allSatisfy { results.contains($0) }, "Missing \(query) emoji")
+        }
+        assert(search.search("broken-heart").first?.emoji == "💔")
+        assert(search.search("thumbs_up").first?.emoji == "👍")
+        assert(search.search("café").contains { $0.emoji == "☕" })
+        assert(search.search("-1").first?.emoji == "👎")
+        assert(search.search("+1").first?.emoji == "👍")
+        assert(!search.search("tired", limit: items.count).contains { $0.emoji == "🛞" })
+        assert(search.search("smile", limit: items.count).allSatisfy { $0.emoji != "😢" })
+        assert(search.search("zzzzzzzz", limit: items.count).isEmpty)
 
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: directory) }

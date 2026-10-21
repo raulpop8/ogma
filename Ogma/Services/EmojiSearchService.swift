@@ -2,66 +2,82 @@ import Foundation
 
 final class EmojiSearchService {
     let items: [EmojiItem]
+    private let index: [Entry]
 
-    init(bundle: Bundle = .main) {
+    private struct Entry {
+        let item: EmojiItem
+        let name: String
+        let aliases: [String]
+        let keywords: [String]
+        let words: [String]
+
+        init(_ item: EmojiItem) {
+            self.item = item
+            name = EmojiSearchService.normalize(item.name)
+            aliases = item.aliases.map(EmojiSearchService.normalize)
+            keywords = item.keywords.map(EmojiSearchService.normalize)
+            words = Array(Set(([name] + aliases + keywords).flatMap { $0.split(separator: " ").map(String.init) }))
+        }
+    }
+
+    convenience init(bundle: Bundle = .main) {
         guard let url = bundle.url(forResource: "emoji", withExtension: "json"),
               let data = try? Data(contentsOf: url),
               let items = try? JSONDecoder().decode([EmojiItem].self, from: data) else {
-            self.items = []
+            self.init(items: [])
             return
         }
-        self.items = items
+        self.init(items: items)
     }
 
     init(items: [EmojiItem]) {
         self.items = items
+        index = items.map(Entry.init)
     }
 
     func search(_ rawQuery: String, limit: Int = 8) -> [EmojiItem] {
-        let query = rawQuery.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        guard limit > 0 else { return [] }
+        let query = Self.normalize(rawQuery)
         guard !query.isEmpty else { return Array(items.prefix(limit)) }
 
-        let matches = items.compactMap { item -> (EmojiItem, Int)? in
-            let names = [item.name.lowercased()]
-            let aliases = item.aliases.map { $0.lowercased() }
-            let keywords = item.keywords.map { $0.lowercased() }
+        let queryWords = query.split(separator: " ").map(String.init)
+        var matches = index.enumerated().compactMap { offset, entry -> (item: EmojiItem, score: Int, offset: Int)? in
+            let aliases = entry.aliases
+            let keywords = entry.keywords
             let score: Int
             if aliases.contains(query) { score = 0 }
-            else if names.contains(query) { score = 1 }
+            else if entry.name == query { score = 1 }
             else if aliases.contains(where: { $0.hasPrefix(query) }) { score = 2 }
-            else if names.contains(where: { $0.hasPrefix(query) }) { score = 3 }
-            else if keywords.contains(where: { $0.hasPrefix(query) }) { score = 4 }
-            else if (aliases + names + keywords).contains(where: { $0.contains(query) }) { score = 5 }
-            else if query.count >= 4,
-                    (aliases + names.flatMap { $0.split(separator: " ").map(String.init) } + keywords)
-                        .contains(where: { Self.isNear(query, $0) }) { score = 6 }
+            else if entry.name.hasPrefix(query) { score = 3 }
+            else if keywords.contains(query) { score = 4 }
+            else if queryWords.allSatisfy({ word in entry.words.contains(where: { $0.hasPrefix(word) }) }) { score = 5 }
+            else if (aliases + [entry.name] + keywords).contains(where: { $0.contains(query) }) { score = 6 }
             else { return nil }
-            return (item, score)
+            return (entry.item, score, offset)
         }
-        .sorted { left, right in
-            if left.1 != right.1 { return left.1 < right.1 }
-            return left.0.name < right.0.name
-        }
-
-        var results = matches.map(\.0)
-        // Keywords on the closest matches provide related choices after direct matches.
-        // For example, :joy also offers emoji tagged "laugh" and "funny".
-        if query.count >= 2, let bestScore = matches.first?.1, bestScore <= 3 {
-            let relatedTerms = Set(matches.prefix(3).flatMap { $0.0.keywords.map { $0.lowercased() } })
-                .subtracting([query])
-            if !relatedTerms.isEmpty {
-                let matchedIDs = Set(results.map(\.id))
-                let related = items.filter { item in
-                    guard !matchedIDs.contains(item.id) else { return false }
-                    let terms = item.name.lowercased().split(separator: " ").map(String.init)
-                        + item.keywords.map { $0.lowercased() }
-                        + item.aliases.map { $0.lowercased() }
-                    return terms.contains(where: { relatedTerms.contains($0) })
-                }
-                results.append(contentsOf: related)
+        // Correct misspellings only when direct search found nothing. Mixing
+        // near-spellings into real matches offered wheels for "tired" (tire).
+        if matches.isEmpty, query.count >= 4, queryWords.count == 1 {
+            matches = index.enumerated().compactMap { offset, entry in
+                entry.words.contains(where: { Self.isNear(query, $0) }) ? (entry.item, 7, offset) : nil
             }
         }
-        return Array(results.prefix(limit))
+        matches.sort { left, right in
+            if left.score != right.score { return left.score < right.score }
+            return left.offset < right.offset
+        }
+
+        return matches.prefix(limit).map(\.item)
+    }
+
+    private static func normalize(_ text: String) -> String {
+        // Preserve the conventional thumbs-down alias while treating other
+        // hyphens like spaces in names such as "broken-heart".
+        if text.trimmingCharacters(in: .whitespacesAndNewlines) == "-1" { return "-1" }
+        return text.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: Locale(identifier: "en_US_POSIX"))
+            .replacingOccurrences(of: "_", with: " ")
+            .replacingOccurrences(of: "-", with: " ")
+            .split(whereSeparator: \.isWhitespace).joined(separator: " ")
     }
 
     private static func isNear(_ query: String, _ candidate: String) -> Bool {

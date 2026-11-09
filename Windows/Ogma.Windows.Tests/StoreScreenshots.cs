@@ -4,6 +4,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using Ogma.Core;
 using Ogma.Windows;
@@ -40,7 +41,11 @@ internal static class StoreScreenshots
             var settings = Application.OpenForms.OfType<SettingsWindow>().Single();
             settings.StartPosition = FormStartPosition.Manual;
             settings.WindowState = FormWindowState.Normal;
-            settings.Bounds = new Rectangle(0, 0, 1366, 768);
+            // WinForms' managed Size setter clamps to the runner's small
+            // virtual monitor. Size the actual HWND directly for an offscreen
+            // WM_PRINT capture at the Store's required desktop dimensions.
+            if (!SetWindowPos(settings.Handle, 0, 0, 0, 1366, 768, 0x0414))
+                throw new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error());
 
             Exception? failure = null;
             var stage = 0;
@@ -111,4 +116,8 @@ internal static class StoreScreenshots
         window.DrawToBitmap(bitmap, new Rectangle(Point.Empty, window.Size));
         bitmap.Save(Path.Combine(directory, name), ImageFormat.Png);
     }
+
+    [DllImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool SetWindowPos(nint window, nint insertAfter, int x, int y, int width, int height, uint flags);
 }

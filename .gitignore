@@ -4,3 +4,6 @@ Build/
 DerivedData/
 *.xcuserstate
 xcuserdata/
+**/bin/
+**/obj/
+Windows/artifacts/

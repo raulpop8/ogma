@@ -1,6 +1,6 @@
 # Ogma
 
-Ogma is a macOS menu bar app for inserting emoji and saved text shortcuts while typing. It requires macOS 14 or later.
+Ogma inserts emoji and saved text shortcuts while typing. The released Mac app requires macOS 14 or later. A native Windows tray app is available in this repository as a preview; see [Windows setup and testing](Windows/README.md).
 
 ## Install
 
@@ -21,5 +21,7 @@ Ogma stores shortcuts locally in Application Support. Emoji usage counts and rec
 ## Develop
 
 Open [Ogma.xcodeproj](Ogma.xcodeproj) in Xcode and run the Ogma scheme. Choose your Apple development team under Signing & Capabilities if Xcode asks. See [RELEASING.md](RELEASING.md) for signing, notarization, and update-feed steps.
+
+For Windows, install the .NET 10 SDK and run `dotnet run --project Windows/Ogma.Windows` on Windows 11. The Windows app reuses the Mac app's emoji catalog and has its own native keyboard, insertion, picker, settings, and local storage implementation. Build portable x64 and ARM64 previews with [Windows/publish.ps1](Windows/publish.ps1). Windows builds and core tests also run in [GitHub Actions](.github/workflows/windows.yml). The Windows preview needs testing on Windows before release; automatic updates and macOS crash report integration are not part of this port.
 
 To refresh search keywords, download `common/annotations/en.xml` and `common/annotationsDerived/en.xml` from the pinned CLDR `release-48` branch, then run `python3 scripts/update-emoji-keywords.py /path/to/en.xml /path/to/derived/en.xml`.

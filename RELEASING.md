@@ -29,3 +29,13 @@ Ogma uses a Developer ID signed, notarized DMG on GitHub Releases and a [Sparkle
    ```
 
 6. Confirm the [public feed](https://raulpop8.github.io/ogma/appcast.xml) shows the new build. In the previous installed release, choose **Check for Updates…** and test download, installation, relaunch, and permissions.
+
+## Windows preview
+
+The Windows app uses its own version in `Windows/Ogma.Windows/Ogma.Windows.csproj` and has no Sparkle integration. See [Windows/README.md](Windows/README.md) for build commands and the required Windows test pass. The Windows workflow produces portable, self-contained ZIPs for x64 and ARM64 without publishing them.
+
+Smart App Control can hard-block the unsigned preview with no per-app allow exception. Public distribution requires a publicly trusted Windows code-signing identity. A self-signed or Apple certificate does not provide it. No such identity is currently configured for Ogma.
+
+Once a trusted certificate is available in the Windows certificate store, build with `./Windows/publish.ps1 -Runtime win-x64 -Version X.Y.Z -CertificateThumbprint YOUR_THUMBPRINT` and repeat for `win-arm64`. The script signs and timestamps `Ogma.exe`, `Ogma.dll`, and `Ogma.Core.dll`, verifies every shipped EXE/DLL, and only then creates a `-signed.zip`. Signed releases use a folder deployment; keep the entire ZIP contents together. Test both packages on independent Windows PCs with Smart App Control enabled. Signing/Windows acceptance still needs live validation; this workflow has not produced a signed release yet.
+
+Unsigned development builds require the explicit `-AllowUnsigned` switch and are named `-unsigned-preview.zip`; they are not suitable for testing on PCs where Smart App Control blocks them. CI uses this development mode until a signing identity is configured. Keep signing credentials outside the repository. Use a separate `windows-vX.Y.Z` release tag while Windows versions are independent; attach the verified signed ZIPs manually and identify preview limitations in the release notes. Do not add Windows builds to the macOS update feed or advertise a Windows download before a verified artifact is published.

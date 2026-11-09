@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <UseWPF>true</UseWPF>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets/Ogma.ico</ApplicationIcon>
+    <AssemblyName>Ogma</AssemblyName>
+    <Version>0.1.0</Version>
+    <Company>Ogma</Company>
+    <Description>Emoji and text shortcuts for Windows</Description>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Ogma.Core/Ogma.Core.csproj" />
+    <EmbeddedResource Include="../../Ogma/Resources/emoji.json" LogicalName="Ogma.Resources.emoji.json" />
+    <EmbeddedResource Include="Assets/Ogma.ico" LogicalName="Ogma.Assets.Ogma.ico" />
+    <Content Include="../../Ogma/Resources/UNICODE_LICENSE.txt" Link="UNICODE_LICENSE.txt" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

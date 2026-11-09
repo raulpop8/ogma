@@ -1,0 +1,51 @@
+name: Windows
+
+on:
+  push:
+    paths: ['Windows/**', 'Ogma/Resources/**', '.github/workflows/windows.yml']
+  pull_request:
+    paths: ['Windows/**', 'Ogma/Resources/**', '.github/workflows/windows.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        runtime: [win-x64, win-arm64]
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+      - name: Test core behavior
+        run: dotnet run --project Windows/Ogma.Core.Tests --configuration Release
+      - name: Test Windows input payload and picker window
+        run: dotnet run --project Windows/Ogma.Windows.Tests --configuration Release
+      - name: Test release packaging safeguards
+        shell: pwsh
+        run: ./Windows/Tests/PackagingTests.ps1
+      - name: Test Store package identity
+        shell: pwsh
+        run: ./Windows/Tests/StoreManifestTests.ps1
+      - name: Build unsigned development preview
+        shell: pwsh
+        run: ./Windows/publish.ps1 -Runtime ${{ matrix.runtime }} -AllowUnsigned
+      - uses: actions/upload-artifact@v6
+        with:
+          name: Ogma-${{ matrix.runtime }}-unsigned-preview
+          path: Windows/artifacts/*.zip
+          if-no-files-found: error
+          compression-level: 0
+      - name: Build Microsoft Store submission package
+        shell: pwsh
+        run: ./Windows/package-store.ps1 -Runtime ${{ matrix.runtime }}
+      - uses: actions/upload-artifact@v6
+        with:
+          name: OgmaTyping-MicrosoftStore-${{ matrix.runtime }}
+          path: Windows/artifacts/store/*.msix
+          if-no-files-found: error
+          compression-level: 0

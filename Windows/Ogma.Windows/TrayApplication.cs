@@ -171,11 +171,14 @@ internal sealed class TrayApplication : ApplicationContext
         // Wait for Enter/mouse dispatch and any physically held Shift to finish.
         for (var i = 0; i < 20 && NativeMethods.IsDown(0x10); i++) await Task.Delay(10);
         if (disposed || ticket != insertionRevision || !FocusService.Matches(current)) return;
-        if (!TextInsertionService.Replace(current, length, item.InsertionText))
+        if (!await TextInsertionService.ReplaceAsync(current, length, item.InsertionText,
+                () => !disposed && ticket == insertionRevision))
         {
-            Notify("Could not insert text", "The app may be running as administrator, or the editor may not accept simulated typing.");
+            if (!disposed && ticket == insertionRevision && FocusService.Matches(current))
+                Notify("Could not insert text", "The editor may not accept simulated typing. Insertion stopped; check the text before trying again.");
             return;
         }
+        if (disposed) return;
         try { suggestions.Record(item); }
         catch (Exception e) when (LocalStore.IsStorageError(e)) { Notify("Could not save emoji usage", e.Message); }
     }

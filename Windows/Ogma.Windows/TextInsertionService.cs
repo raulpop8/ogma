@@ -4,13 +4,25 @@ namespace Ogma.Windows;
 
 internal static class TextInsertionService
 {
-    public static bool Replace(FocusSnapshot target, int length, string replacement)
+    public static async Task<bool> ReplaceAsync(FocusSnapshot target, int length, string replacement, Func<bool>? isCurrent = null)
     {
         if (length <= 0 || replacement.Length == 0 || !FocusService.Matches(target)) return false;
         // Held modifiers can turn backspaces into commands or alter insertion.
         if (new[] { 0x10, 0x11, 0x12, 0x5B, 0x5C }.Any(NativeMethods.IsDown)) return false;
         var inputs = CreateInputs(length, replacement);
-        return NativeMethods.SendInput((uint)inputs.Length, inputs, Marshal.SizeOf<NativeMethods.Input>()) == inputs.Length;
+        var size = Marshal.SizeOf<NativeMethods.Input>();
+        for (var index = 0; index < inputs.Length; index += 2)
+        {
+            if (isCurrent?.Invoke() == false || !FocusService.Matches(target)
+                || new[] { 0x10, 0x11, 0x12, 0x5B, 0x5C }.Any(NativeMethods.IsDown)) return false;
+            var pair = new[] { inputs[index], inputs[index + 1] };
+            if (NativeMethods.SendInput(2, pair, size) != 2) return false;
+            // VK_PACKET text is processed asynchronously by modern editors.
+            // Give the editor a message-loop turn before the next UTF-16 unit,
+            // rather than posting a whole date/snippet in one unpaced burst.
+            await Task.Delay(8);
+        }
+        return true;
     }
 
     internal static NativeMethods.Input[] CreateInputs(int length, string replacement)

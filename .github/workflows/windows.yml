@@ -59,9 +59,26 @@ jobs:
         with:
           dotnet-version: '10.0.x'
       - name: Capture actual Windows app screens
-        run: dotnet run --project Windows/Ogma.Windows.Tests --configuration Release -p:Version=1.0.0 -p:IncludeSourceRevisionInInformationalVersion=false -- --capture Windows/artifacts/store-screenshots
+        run: dotnet run --project Windows/Ogma.Windows.Tests --configuration Release -p:Version=1.0.1 -p:IncludeSourceRevisionInInformationalVersion=false -- --capture Windows/artifacts/store-screenshots
       - uses: actions/upload-artifact@v6
         with:
           name: OgmaTyping-Store-screenshots
           path: Windows/artifacts/store-screenshots/*.png
           if-no-files-found: error
+
+  desktop-regressions:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+      - name: Test color fonts, themes, and paced Unicode insertion
+        run: dotnet run --project Windows/Ogma.Windows.Tests --configuration Release -- --desktop-tests Windows/artifacts/picker-tests
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: OgmaTyping-picker-regression-images
+          path: Windows/artifacts/picker-tests/*.png
+          if-no-files-found: ignore

@@ -59,6 +59,9 @@ internal sealed class KeyboardMonitor : IDisposable
             return NativeMethods.CallNextHookEx(keyboardHook, code, message, data);
         }
         if (message != 0x100 && message != 0x104) return NativeMethods.CallNextHookEx(keyboardHook, code, message, data);
+        // Holding Enter after accepting must not send repeated Return commands
+        // to the editor while the replacement is still being inserted.
+        if (key.VirtualKey == 13 && swallowedKeys.Contains(13)) return 1;
         if (key.VirtualKey is 0x10 or 0xA0 or 0xA1) return NativeMethods.CallNextHookEx(keyboardHook, code, message, data);
 
         var text = "";

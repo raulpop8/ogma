@@ -1,6 +1,6 @@
 param(
     [ValidateSet('win-x64', 'win-arm64')][string]$Runtime = 'win-x64',
-    [string]$PackageVersion = '1.0.0.0',
+    [string]$PackageVersion = '1.0.1.0',
     [string]$IdentityPath = (Join-Path $PSScriptRoot 'Store/identity.json'),
     [string]$MakeAppxPath = 'makeappx.exe'
 )

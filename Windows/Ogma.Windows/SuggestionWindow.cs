@@ -1,4 +1,5 @@
 using Ogma.Core;
+using Microsoft.Win32;
 
 namespace Ogma.Windows;
 
@@ -10,6 +11,9 @@ internal sealed class SuggestionWindow : Form
     private readonly Font emojiFont = new("Segoe UI Emoji", 30, FontStyle.Regular, GraphicsUnit.Pixel);
     private readonly Font labelFont = new("Segoe UI", 12, FontStyle.Regular, GraphicsUnit.Pixel);
     private readonly ToolTip tooltip = new();
+    private readonly ColorEmojiRenderer colorEmoji = new();
+    private readonly bool? darkOverride;
+    private PickerPalette palette = PickerPalette.Resolve();
     private const int Header = 34, Footer = 32, Rows = 6, Cell = 52;
     private Rectangle anchor;
     private int Columns => grid ? 5 : 1;
@@ -23,17 +27,32 @@ internal sealed class SuggestionWindow : Form
         get { var p = base.CreateParams; p.ExStyle |= 0x08000000 | 0x80; return p; }
     }
 
-    public SuggestionWindow()
+    public SuggestionWindow(bool? darkModeOverride = null)
     {
+        darkOverride = darkModeOverride;
+        palette = PickerPalette.Resolve(darkOverride);
         Text = "Ogma suggestions";
         AccessibleName = Text;
         FormBorderStyle = FormBorderStyle.None;
         ShowInTaskbar = false;
         StartPosition = FormStartPosition.Manual;
         TopMost = true;
-        BackColor = SystemColors.Window;
+        BackColor = palette.Background;
         DoubleBuffered = true;
         AutoScaleMode = AutoScaleMode.None;
+        SystemEvents.UserPreferenceChanged += OnUserPreferenceChanged;
+    }
+
+    private void OnUserPreferenceChanged(object? sender, UserPreferenceChangedEventArgs e)
+    {
+        if (IsDisposed || !IsHandleCreated) return;
+        BeginInvoke(() =>
+        {
+            if (IsDisposed) return;
+            palette = PickerPalette.Resolve(darkOverride);
+            BackColor = palette.Background;
+            Invalidate();
+        });
     }
 
     public void Present(IReadOnlyList<Suggestion> results, Rectangle anchor, bool useGrid)
@@ -102,24 +121,25 @@ internal sealed class SuggestionWindow : Form
         g.ScaleTransform(scale, scale);
         var width = ClientSize.Width / scale;
         var height = ClientSize.Height / scale;
-        using var border = new Pen(SystemColors.ControlDark);
+        var glyphs = new List<EmojiGlyph>();
+        using var border = new Pen(palette.Border);
         g.DrawRectangle(border, 0, 0, width - 1, height - 1);
-        Draw(g, "OGMA", labelFont, SystemColors.GrayText, new RectangleF(12, 8, width - 24, 22));
+        Draw(g, "OGMA", labelFont, palette.Secondary, new RectangleF(12, 8, width - 24, 22));
         var end = Math.Min(items.Count, (firstRow + Rows) * Columns);
         for (var i = firstRow * Columns; i < end; i++)
         {
             var item = items[i];
             var cell = new RectangleF(8 + i % Columns * (grid ? Cell : 0), Header + (i / Columns - firstRow) * RowHeight,
                 grid ? Cell : width - 16, RowHeight);
-            var background = i == selected ? SystemColors.Highlight : item.Usage == "Recently used"
-                ? Color.FromArgb(255, 245, 208) : item.Usage == "Most used" ? Color.FromArgb(225, 239, 255) : BackColor;
+            var background = i == selected ? palette.Selection : item.Usage == "Recently used"
+                ? palette.Recent : item.Usage == "Most used" ? palette.Frequent : palette.Background;
             using var fill = new SolidBrush(background);
             g.FillRectangle(fill, RectangleF.Inflate(cell, -2, -2));
-            var foreground = i == selected ? SystemColors.HighlightText : SystemColors.WindowText;
-            if (grid) Draw(g, item.Emoji ?? "", emojiFont, foreground, cell, center: true);
+            var foreground = i == selected ? palette.SelectedText : palette.Text;
+            if (grid) glyphs.Add(new(item.Emoji ?? "", RectangleF.Inflate(cell, -2, -2), foreground, background));
             else if (item.Emoji != null)
             {
-                Draw(g, item.Emoji, emojiFont, foreground, new RectangleF(cell.X + 4, cell.Y, 46, cell.Height), center: true);
+                glyphs.Add(new(item.Emoji, new RectangleF(cell.X + 4, cell.Y + 2, 46, cell.Height - 4), foreground, background));
                 Draw(g, item.Title, labelFont, foreground, new RectangleF(cell.X + 56, cell.Y, cell.Width - 60, cell.Height));
             }
             else
@@ -130,7 +150,16 @@ internal sealed class SuggestionWindow : Form
             }
         }
         var hint = grid ? SelectedItem?.Title ?? "" : "↑ ↓ Choose    Enter Insert    Esc Close";
-        Draw(g, hint, labelFont, SystemColors.GrayText, new RectangleF(12, height - Footer + 3, width - 24, 24));
+        Draw(g, hint, labelFont, palette.Secondary, new RectangleF(12, height - Footer + 3, width - 24, 24));
+        if (!colorEmoji.TryDraw(g, glyphs, scale))
+        {
+            foreach (var glyph in glyphs)
+            {
+                using var fill = new SolidBrush(glyph.Background);
+                g.FillRectangle(fill, glyph.Bounds);
+                Draw(g, glyph.Text, emojiFont, glyph.Foreground, glyph.Bounds, center: true);
+            }
+        }
     }
 
     private static void Draw(Graphics g, string text, Font font, Color color, RectangleF bounds, bool center = false)
@@ -184,7 +213,11 @@ internal sealed class SuggestionWindow : Form
     }
     protected override void Dispose(bool disposing)
     {
-        if (disposing) { emojiFont.Dispose(); labelFont.Dispose(); tooltip.Dispose(); }
+        if (disposing)
+        {
+            SystemEvents.UserPreferenceChanged -= OnUserPreferenceChanged;
+            colorEmoji.Dispose(); emojiFont.Dispose(); labelFont.Dispose(); tooltip.Dispose();
+        }
         base.Dispose(disposing);
     }
 }

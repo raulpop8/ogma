@@ -1,7 +1,7 @@
 param(
     [ValidateSet('win-x64', 'win-arm64')]
     [string]$Runtime = 'win-x64',
-    [string]$Version = '0.1.0',
+    [string]$Version = '1.0.1',
     [string]$CertificateThumbprint,
     [ValidateSet('CurrentUser', 'LocalMachine')]
     [string]$CertificateStore = 'CurrentUser',

@@ -6,11 +6,12 @@
     <UseWPF>true</UseWPF>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Assets/Ogma.ico</ApplicationIcon>
     <AssemblyName>Ogma</AssemblyName>
-    <Version>0.1.0</Version>
+    <Version>1.0.1</Version>
     <Company>Ogma</Company>
     <Description>Emoji and text shortcuts for Windows</Description>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>

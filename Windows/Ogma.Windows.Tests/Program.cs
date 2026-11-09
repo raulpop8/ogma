@@ -17,6 +17,11 @@ internal static class Program
             StoreScreenshots.Capture(args[1]);
             return;
         }
+        if (args.Length == 2 && args[0] == "--desktop-tests")
+        {
+            DesktopRegressionTests.Run(args[1]);
+            return;
+        }
         void Check(bool condition, string message)
         {
             if (!condition) throw new Exception(message);

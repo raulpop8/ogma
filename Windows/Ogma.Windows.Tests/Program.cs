@@ -10,8 +10,13 @@ using Ogma.Windows;
 internal static class Program
 {
     [STAThread]
-    private static void Main()
+    private static void Main(string[] args)
     {
+        if (args.Length == 2 && args[0] == "--capture")
+        {
+            StoreScreenshots.Capture(args[1]);
+            return;
+        }
         void Check(bool condition, string message)
         {
             if (!condition) throw new Exception(message);

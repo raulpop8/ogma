@@ -1,4 +1,5 @@
 $ErrorActionPreference = 'Stop'
+$previousExitCode = [int]$global:LASTEXITCODE
 $fixture = Join-Path ([IO.Path]::GetTempPath()) ("ogma-packaging-tests-" + [Guid]::NewGuid().ToString('N'))
 $global:ogmaPackagingCalls = 0
 $global:ogmaPackagingExit = 0
@@ -61,6 +62,9 @@ try {
     }
     Write-Output 'Packaging syntax, unsigned-release guard, archive labeling, README, cleanup, and failure-preservation checks passed. Live signing was not tested.'
 } finally {
+    # The negative-path test mocks a native failure. Restore the caller's exit
+    # state so GitHub's PowerShell wrapper does not mistake it for a real one.
+    $global:LASTEXITCODE = $previousExitCode
     Remove-Item Function:\dotnet -ErrorAction SilentlyContinue
     Remove-Variable ogmaPackagingCalls, ogmaPackagingExit, ogmaPackagingArguments -Scope Global -ErrorAction SilentlyContinue
     if (Test-Path -LiteralPath $fixture) { Remove-Item -LiteralPath $fixture -Recurse -Force }

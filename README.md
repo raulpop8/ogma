@@ -1,25 +1,79 @@
 # Ogma
 
-Ogma is a macOS menu bar app for inserting emoji and saved text shortcuts while typing. It requires macOS 14 or later.
+Emoji and saved text, right where you type. Ogma is a native desktop app for **macOS and Windows**: type `:` to find emoji, `/` for a saved text shortcut, or `/date` for today's date.
+
+[Website](https://raulpop8.github.io/ogma/) · [Download for macOS](https://github.com/raulpop8/ogma/releases/latest) · [Get Ogma Typing for Windows](https://apps.microsoft.com/detail/9N271VJTZDCH)
 
 ## Install
 
-Download the [latest signed DMG](https://github.com/raulpop8/ogma/releases/latest), drag Ogma into Applications, and launch it. Grant Accessibility access in System Settings, then open **Ogma → Settings** and check that **Keyboard listener** says **Ready**. Ogma lives in the menu bar, not the Dock.
+| Platform | Download | Requirements | Updates |
+| --- | --- | --- | --- |
+| macOS | [Signed, notarized DMG](https://github.com/raulpop8/ogma/releases/latest) | macOS 14 or later; Accessibility permission | In-app updates through Sparkle |
+| Windows | [Ogma Typing on Microsoft Store](https://apps.microsoft.com/detail/9N271VJTZDCH) | Windows 11; x64 or ARM64 | Microsoft Store |
 
-## Use
+### macOS
 
-- Type `:` to browse emoji, or `:joy` to search (`:hug` finds 🤗). Scroll or use arrow keys, or hover over an emoji to highlight it and see its name. Click a result or press Return to insert it; Escape closes the picker. Choose a five-column grid or named list in **Settings → Emoji picker**.
-- With just `:`, the first five choices are your two most recently used emoji (soft yellow) and three most-used other emoji (soft blue). Common suggestions fill unused slots until you build up history. Each emoji appears once; typing a search switches to regular results.
-- Create a text shortcut in **Settings → Shortcuts**. For a shortcut named `email`, type `/email` in another app to insert its saved text.
-- Type `/date` and press Return to insert today's date. Choose its display format in **Settings → General → Date shortcut**.
-- The picker stays beside the typing text with about two or three character widths of space. It validates the insertion point against the editor and window, retaining the last text position through temporary lookup failures. If the app exposes no caret, it uses a recent click or the center of the focused field/window while retrying. It never follows the mouse pointer. Inserting an emoji or shortcut adds a trailing space unless the text already ends with whitespace.
-- Choose **Check for Updates…** from the Ogma menu to install a new release.
-- Settings shows the installed version and build number. If Ogma crashes, the next launch offers to review the macOS crash report. You can also use **Settings → General → Crash reports** to save or share the latest log as an attachment; Ogma does not upload reports automatically.
+1. Download the DMG and drag Ogma into Applications.
+2. Launch Ogma and allow it in **System Settings → Privacy & Security → Accessibility**.
+3. Open **Ogma → Settings** from the menu bar. Check that **Keyboard listener** says **Ready**. If needed, choose **Check Again**.
 
-Ogma stores shortcuts locally in Application Support. Emoji usage counts and recency are saved locally when you insert an emoji through Ogma. It does not store typing history or use the clipboard. The bundled emoji catalog comes from [Unicode Emoji 17.0](https://www.unicode.org/Public/17.0.0/emoji/emoji-test.txt), with English search keywords from [Unicode CLDR 48](https://github.com/unicode-org/cldr/tree/release-48/common/annotations). Search works offline, including related emotions such as `:sad`, short names, and misspellings. Its [license](Ogma/Resources/UNICODE_LICENSE.txt) is included with the app.
+Ogma lives in the menu bar. Closing Settings keeps it running.
 
-## Develop
+### Windows
 
-Open [Ogma.xcodeproj](Ogma.xcodeproj) in Xcode and run the Ogma scheme. Choose your Apple development team under Signing & Capabilities if Xcode asks. See [RELEASING.md](RELEASING.md) for signing, notarization, and update-feed steps.
+1. Install **Ogma Typing**, published by **Raul Pop**, from Microsoft Store.
+2. Launch it from Start. Open Settings by double-clicking the Ogma icon in the notification area; it may be behind the hidden-icons arrow.
+3. Keep Ogma enabled and try a shortcut in an ordinary, non-administrator text editor.
 
-To refresh search keywords, download `common/annotations/en.xml` and `common/annotationsDerived/en.xml` from the pinned CLDR `release-48` branch, then run `python3 scripts/update-emoji-keywords.py /path/to/en.xml /path/to/derived/en.xml`.
+The Store name **Ogma Typing** identifies the Windows edition of Ogma. Closing Settings keeps it running. Use the Store installation for Windows. Unsigned development builds and MSIX submission files in build artifacts are not public installers.
+
+## Use Ogma
+
+| Type | What happens |
+| --- | --- |
+| `:` | Browse emoji, with recent and frequently used choices first |
+| `:joy` | Search for an emoji by name or keyword |
+| `/email` | Find a saved shortcut named `email` |
+| `/date` | Insert today's date in your chosen format |
+
+Use the arrow keys to choose a suggestion and **Return/Enter** to insert it, or click the result. **Escape** closes the picker.
+
+Create and edit saved text in **Settings → Shortcuts**. Choose an emoji grid or named list in Settings, and a short, long, or ISO (`YYYY-MM-DD`) date format under General. Search works offline and supports related words and common misspellings.
+
+The picker stays near the insertion point when the editor exposes one. Placement and text insertion depend on the editor's accessibility support. The Mac and Windows editions use native interfaces; their settings and platform integrations are not yet identical.
+
+## Updates and compatibility
+
+- **Mac:** choose **Check for Updates…** from the Ogma menu. Sparkle installs signed updates hosted on GitHub Releases. macOS crash-report review and export are available in Settings; reports are not uploaded automatically.
+- **Windows:** Microsoft Store delivers published updates according to the PC's update settings. You can also check for updates in the Store. The current **View releases** command opens the project's GitHub release history; it does not update the Windows app.
+
+A GitHub push does **not** publish an app update. Mac releases need a signed, notarized download and a signed update-feed entry. Windows releases need higher-versioned packages submitted to Microsoft Store, certified, and published. The platforms currently have independent version numbers; see [release instructions](RELEASING.md).
+
+Compatibility varies between editors. Password fields are excluded when identified. Windows cannot insert into applications running as administrator. Custom editors, terminals, games, remote desktops, or unavailable accessibility providers may limit insertion. If a replacement is incomplete, check the text before retrying.
+
+## Privacy
+
+Emoji search runs locally using a bundled catalog. Saved shortcuts, preferences, and emoji usage stay on your device. Each installation keeps its own data; Ogma does not sync it between platforms.
+
+Ogma does not save typing history, read document contents, use the clipboard for insertion, or upload your text. It keeps a bounded active shortcut query in memory while you type. The Windows app uses accessibility information and, where supported, selection positions to target insertion. [Windows privacy policy](https://github.com/raulpop8/ogma/blob/codex/windows-store/Windows/Store/PRIVACY.md).
+
+## Build and contribute
+
+Ogma has two native implementations sharing the bundled emoji catalog:
+
+- **macOS:** Swift, SwiftUI and AppKit. Open [Ogma.xcodeproj](Ogma.xcodeproj) in Xcode, choose your development team if asked, and run the Ogma scheme.
+- **Windows:** C#/.NET 10 and Windows Forms, with Win32 input handling and UI Automation. Windows code currently lives on the [`codex/windows-store` branch](https://github.com/raulpop8/ogma/tree/codex/windows-store/Windows). On Windows with the .NET 10 SDK, run `dotnet run --project Windows/Ogma.Windows`. See the [Windows developer guide](https://github.com/raulpop8/ogma/blob/codex/windows-store/Windows/README.md) for tests and packaging.
+
+Report bugs through [GitHub Issues](https://github.com/raulpop8/ogma/issues). Include your operating system, Ogma version, affected app, and steps to reproduce with sample text. Keep passwords and private shortcut contents out of reports.
+
+The website is maintained in this repository too: see [WEBSITE.md](WEBSITE.md) for its source, hosting, and publishing steps.
+
+## Emoji data
+
+The bundled catalog uses [Unicode Emoji 17.0](https://www.unicode.org/Public/17.0.0/emoji/emoji-test.txt) and English keywords from [Unicode CLDR 48](https://github.com/unicode-org/cldr/tree/release-48/common/annotations). The [Unicode license](Ogma/Resources/UNICODE_LICENSE.txt) is included with the app.
+
+To refresh search keywords, download `common/annotations/en.xml` and `common/annotationsDerived/en.xml` from CLDR's pinned `release-48` branch, then run:
+
+```sh
+python3 scripts/update-emoji-keywords.py /path/to/en.xml /path/to/derived/en.xml
+```

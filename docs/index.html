@@ -4,13 +4,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#F6F5F2" id="theme-color">
-    <meta name="description" content="Ogma is a macOS menu bar app for emoji and text shortcuts. Type more. Effortlessly.">
+    <meta name="description" content="Ogma is a native emoji and text shortcut app for macOS and Windows. Find emoji, reuse everyday phrases, and insert today’s date as you type.">
     <link rel="icon" type="image/png" sizes="32x32" href="assets/ogma-favicon-light.png?v=2" id="site-icon">
-    <title>Ogma — Type more. Effortlessly.</title>
+    <title>Ogma — Emoji and text shortcuts for Mac and Windows</title>
     <script>
       (() => {
-        const saved = localStorage.getItem('ogma-theme');
-        const theme = saved || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        let saved;
+        try { saved = localStorage.getItem('ogma-theme'); } catch {}
+        const theme = (saved === 'light' || saved === 'dark' ? saved : null) || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
         document.documentElement.dataset.theme = theme;
         document.documentElement.style.colorScheme = theme;
       })();
@@ -246,6 +247,70 @@
         footer { min-height: 64px; }
       }
 
+
+      /* Platform information extends the existing Ogma visual identity. */
+      html { scroll-behavior: smooth; scroll-padding-top: 24px; }
+      ::selection { background: var(--purple-soft); color: #241449; }
+      .page-shell { overflow: clip; }
+      header .brand { text-decoration: none; }
+      .header-actions { display: flex; align-items: center; gap: 24px; }
+      .header-actions > a { color: var(--muted); font-size: 14px; text-decoration: none; }
+      .header-actions > a:hover { color: var(--ink); }
+      main { display: block; flex: initial; padding: 0 24px; }
+      .hero { width: min(100%, 900px); margin: 0 auto; padding: 88px 0 80px; }
+      h1 { letter-spacing: -.03em; }
+      .intro { max-width: 570px; }
+      .download { background: var(--purple-deep); box-shadow: none; }
+      .download:hover { background: #5931D7; box-shadow: 0 6px 18px rgb(35 19 76 / 14%); }
+      .requirements { display: block; margin-top: 18px; line-height: 1.8; }
+      .requirements span { display: block; }
+      .requirements span::before { content: none; }
+      .section { width: min(100%, 960px); margin: 0 auto; padding: 64px 0; border-top: 1px solid var(--line); }
+      h2 { max-width: 650px; margin: 0 0 20px; font-size: clamp(28px, 4vw, 40px); line-height: 1.15; letter-spacing: -.025em; }
+      h3 { margin: 0 0 14px; font-size: 22px; line-height: 1.3; letter-spacing: -.015em; }
+      .section p, .section li { font-size: 16px; line-height: 1.75; }
+      .section p { max-width: 68ch; color: var(--muted); margin: 0 0 18px; }
+      .section a { text-underline-offset: 4px; }
+      .section a:hover { text-decoration-thickness: 2px; }
+      .examples { margin-top: 32px; }
+      .example { display: grid; grid-template-columns: 100px 64px 1fr; align-items: center; gap: 16px; padding: 24px 0; border-bottom: 1px solid var(--line); }
+      .example:last-child { border-bottom: 0; }
+      code, kbd { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .95em; }
+      .example code { font-size: 20px; }
+      .example-result { font-size: 22px; line-height: 1.4; overflow-wrap: anywhere; }
+      .example-description { display: block; margin-top: 5px; color: var(--muted); font-size: 14px; line-height: 1.6; }
+      .example-arrow { color: var(--muted); width: 24px; height: 24px; }
+      .platforms { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; margin-top: 32px; }
+      .platforms ol { padding-left: 22px; margin: 0 0 18px; }
+      .platforms li { padding-left: 5px; margin-bottom: 10px; }
+      .platforms strong { font-weight: 650; }
+      .platforms .platform-note { font-size: 14px; }
+      .platforms .download { color: white; margin-bottom: 18px; }
+      .updates { margin-top: 28px; }
+      .updates h3 { font-size: 20px; }
+      details { border-bottom: 1px solid var(--line); padding: 20px 0; }
+      summary { cursor: pointer; font-size: 17px; font-weight: 600; line-height: 1.5; }
+      details p { padding-top: 14px; margin-bottom: 0 !important; }
+      summary:focus-visible { outline: 3px solid var(--purple); outline-offset: 4px; }
+      .privacy { padding-bottom: 72px; }
+      .footer-links { display: flex; flex-wrap: wrap; gap: 18px; }
+      footer { gap: 20px; padding-block: 24px; }
+      @media (max-width: 640px) {
+        .header-actions { gap: 12px; }
+        .header-actions > a { display: none; }
+        .hero { padding: 56px 0 56px; }
+        .actions { flex-direction: column; gap: 12px; }
+        .hero .download { width: min(100%, 310px); }
+        .section { padding: 40px 0; }
+        .platforms { grid-template-columns: 1fr; gap: 36px; }
+        .platforms article + article { padding-top: 32px; border-top: 1px solid var(--line); }
+        .example { grid-template-columns: 72px 24px 1fr; gap: 12px; padding-block: 20px; }
+        .example code { font-size: 17px; }
+        .example-result { font-size: 18px; }
+        .example-description { font-size: 13px; }
+        footer { align-items: flex-start; flex-direction: column; gap: 16px; }
+      }
+
       @media (prefers-reduced-motion: reduce) {
         *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
       }
@@ -260,33 +325,116 @@
             <span class="brand-name">Ogma</span>
           </span>
         </a>
+        <div class="header-actions">
+          <a href="#how-it-works">How it works</a>
+          <a href="#install">Get Ogma</a>
         <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode">
           <span class="theme-icon" id="theme-icon" aria-hidden="true">☾</span>
           <span id="theme-label">Dark mode</span>
         </button>
+        </div>
       </header>
 
-      <main>
+      <main id="main">
         <section class="hero" aria-labelledby="hero-title">
-          <p class="eyebrow">A little more flow in every day</p>
           <h1 id="hero-title"><span>Your words,</span><span>within reach.</span></h1>
-          <p class="intro">Bring up emoji as you type. Turn your most-used phrases into shortcuts. Ogma keeps both close from your menu bar.</p>
+          <p class="intro">Find the right emoji. Give your everyday phrases a shortcut. Ogma keeps both close as you type, on Mac and Windows.</p>
           <div class="actions">
-            <a class="download" href="https://github.com/raulpop8/ogma/releases/latest">
-              Download for macOS <span class="download-arrow" aria-hidden="true">↓</span>
-            </a>
-            <a class="source" href="https://github.com/raulpop8/ogma">View source on GitHub</a>
+            <a class="download" href="https://github.com/raulpop8/ogma/releases/latest">Download for macOS</a>
+            <a class="download" href="https://apps.microsoft.com/detail/9N271VJTZDCH">Get Ogma for Windows</a>
           </div>
           <p class="requirements">
-            <span>macOS 14 or later</span>
-            <span>Accessibility permission required for text insertion</span>
+            <span>macOS 14 or later · Windows 11</span>
+            <span>Listed as <strong>Ogma Typing</strong> on Microsoft Store.</span>
           </p>
+        </section>
+
+        <section class="section" id="how-it-works" aria-labelledby="shortcuts-title">
+          <h2 id="shortcuts-title">A few keys. The words you need.</h2>
+          <p>Keep writing in your editor. Type a trigger, choose a suggestion with the arrow keys, and press Return or Enter to insert it. Click works too. Escape closes the picker.</p>
+          <div class="examples" aria-label="Shortcut examples">
+            <div class="example">
+              <code>:joy</code>
+              <svg class="example-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6"/></svg>
+              <div><span class="example-result" role="img" aria-label="Face with tears of joy">😂</span><span class="example-description">Search emoji by name or keyword. Type just : to browse recent and frequently used choices.</span></div>
+            </div>
+            <div class="example">
+              <code>/email</code>
+              <svg class="example-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6"/></svg>
+              <div><span class="example-result">hello@example.com</span><span class="example-description">An example of a saved text shortcut. Add your own phrases in Settings → Shortcuts.</span></div>
+            </div>
+            <div class="example">
+              <code>/date</code>
+              <svg class="example-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6"/></svg>
+              <div><span class="example-result">Today's date</span><span class="example-description">Choose your system's short or long date format, or YYYY-MM-DD.</span></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="install" aria-labelledby="install-title">
+          <h2 id="install-title">Make yourself at home.</h2>
+          <p>One Ogma, built natively for each platform. Choose your download and set it up once.</p>
+          <div class="platforms">
+            <article aria-labelledby="mac-title">
+              <h3 id="mac-title">On your Mac</h3>
+              <ol>
+                <li>Download the signed, notarized DMG and drag Ogma into Applications.</li>
+                <li>Launch Ogma and grant <strong>Accessibility</strong> access in System Settings → Privacy &amp; Security.</li>
+                <li>Open Settings from the Ogma menu bar icon. Check that <strong>Keyboard listener</strong> says <strong>Ready</strong>.</li>
+              </ol>
+              <a href="https://github.com/raulpop8/ogma/releases/latest">Download for macOS</a>
+              <p class="platform-note">Requires macOS 14 or later. Closing Settings keeps Ogma running in the menu bar.</p>
+            </article>
+            <article aria-labelledby="windows-title">
+              <h3 id="windows-title">On your Windows PC</h3>
+              <ol>
+                <li>Install <strong>Ogma Typing</strong> by <strong>Raul Pop</strong> from Microsoft Store.</li>
+                <li>Launch it from Start. Double-click the Ogma icon in the notification area to open Settings.</li>
+                <li>Keep Ogma enabled and try a shortcut in an ordinary, non-administrator text editor.</li>
+              </ol>
+              <a href="https://apps.microsoft.com/detail/9N271VJTZDCH">Get Ogma on Microsoft Store</a>
+              <p class="platform-note">Requires Windows 11. Supports x64 and ARM64 PCs. The tray icon may be behind the hidden-icons arrow.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="section" id="updates" aria-labelledby="updates-title">
+          <h2 id="updates-title">Updates, without the guesswork.</h2>
+          <div class="platforms updates">
+            <article>
+              <h3>Mac updates in Ogma</h3>
+              <p>Choose <strong>Check for Updates…</strong> from the Ogma menu. Ogma uses Sparkle to install signed Mac releases hosted on GitHub.</p>
+            </article>
+            <article>
+              <h3>Windows updates in the Store</h3>
+              <p>Microsoft Store delivers published updates according to your PC's update settings. You can also check for updates directly in the Store.</p>
+            </article>
+          </div>
+          <details>
+            <summary>Are the Mac and Windows editions the same app?</summary>
+            <p>They are two native editions of Ogma, sharing the emoji catalog and the same core idea. Their interfaces and platform integrations are not yet identical. Each installation keeps its own shortcuts and preferences; they do not sync between devices.</p>
+          </details>
+          <details>
+            <summary>Does Ogma work in every text field?</summary>
+            <p>Compatibility depends on the editor and the accessibility information it provides. Password fields are excluded when identified. On Windows, insertion into apps running as administrator is unavailable. Custom editors, terminals, and remote desktops may behave differently. If a replacement is incomplete, check your text before retrying.</p>
+          </details>
+          <details>
+            <summary>Why does Windows “View releases” open GitHub?</summary>
+            <p>That command currently opens the project's release history. It does not update the Windows app. Use Microsoft Store for Windows installation and updates; the GitHub download currently serves the Mac edition.</p>
+          </details>
+        </section>
+
+        <section class="section privacy" id="privacy" aria-labelledby="privacy-title">
+          <h2 id="privacy-title">Your shortcuts stay yours.</h2>
+          <p>Emoji search works offline. Saved text shortcuts, preferences, and emoji usage stay on your device. Ogma does not save typing history, use the clipboard for insertion, or upload your text.</p>
+          <p>Ogma uses your active shortcut query and editor accessibility information to place suggestions and insert the result. It does not read document contents. It has no advertising or analytics service.</p>
+          <p><a href="https://github.com/raulpop8/ogma/blob/codex/windows-store/Windows/Store/PRIVACY.md">Read the Windows privacy policy</a> · <a href="https://github.com/raulpop8/ogma/issues">Report an issue</a></p>
         </section>
       </main>
 
       <footer>
         <span>Made by <a href="https://raulpop.ro">Raul Pop</a></span>
-        <a href="https://github.com/raulpop8/ogma">Open source on GitHub</a>
+        <div class="footer-links"><a href="#privacy">Privacy</a><a href="https://github.com/raulpop8/ogma">Source on GitHub</a></div>
       </footer>
     </div>
     <script>
@@ -325,7 +473,7 @@
           favicon.href = `assets/ogma-favicon-${dark ? 'dark' : 'light'}.png?v=2`;
           browserTheme.content = dark ? '#101015' : '#F6F5F2';
           switchImage(headerLogo, 'ogma-icon', theme);
-          if (save) localStorage.setItem('ogma-theme', theme);
+          if (save) { try { localStorage.setItem('ogma-theme', theme); } catch {} }
         }
 
         toggle.addEventListener('click', () => {
@@ -333,7 +481,9 @@
         });
 
         systemTheme.addEventListener('change', (event) => {
-          if (!localStorage.getItem('ogma-theme')) applyTheme(event.matches ? 'dark' : 'light');
+          let saved;
+          try { saved = localStorage.getItem('ogma-theme'); } catch {}
+          if (!saved) applyTheme(event.matches ? 'dark' : 'light');
         });
 
         applyTheme(root.dataset.theme);

@@ -54,4 +54,4 @@ The existing Mac and Windows releases have independent version numbers. For futu
 
 ## Website-only updates
 
-The presentation site is published by GitHub Pages from `main` → `/docs`. See [WEBSITE.md](WEBSITE.md). Keep `docs/appcast.xml` unchanged when editing the website; publishing a page does not publish an app update.
+The presentation site at https://ogma.raulpop.ro/ is deployed automatically by Vercel from `main`, using the `docs` folder. GitHub Pages still publishes the same folder at https://raulpop8.github.io/ogma/ to preserve the existing Mac Sparkle feed. See [WEBSITE.md](WEBSITE.md). Keep `docs/appcast.xml` unchanged when editing the website; publishing a page does not publish an app update.

@@ -2,7 +2,7 @@
 
 Emoji and saved text, right where you type. Ogma is a native desktop app for **macOS and Windows**: type `:` to find emoji, `/` for a saved text shortcut, or `/date` for today's date.
 
-[Website](https://raulpop8.github.io/ogma/) · [Download for macOS](https://github.com/raulpop8/ogma/releases/latest) · [Get Ogma Typing for Windows](https://apps.microsoft.com/detail/9N271VJTZDCH)
+[Website](https://ogma.raulpop.ro/) · [Download for macOS](https://github.com/raulpop8/ogma/releases/latest) · [Get Ogma Typing for Windows](https://apps.microsoft.com/detail/9N271VJTZDCH)
 
 ## Install
 

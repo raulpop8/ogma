@@ -13,16 +13,27 @@ On Windows, install the .NET 10 SDK and Windows SDK MSIX Packaging Tools, then r
 ./Windows/package-store.ps1 -Runtime win-arm64
 ```
 
-The script finds MakeAppx in the Windows SDK or accepts `-MakeAppxPath`. It builds a self-contained folder deployment, inserts the reserved product identity, includes the app's existing logo and Unicode license, and runs MakeAppx with schema/semantic validation enabled. Outputs go to `Windows/artifacts/store/`:
+The script finds MakeAppx in the Windows SDK or accepts `-MakeAppxPath`. It builds a self-contained folder deployment, inserts the reserved product identity, includes the app's existing logo and Unicode license, and runs MakeAppx with schema/semantic validation enabled. The current update candidate is **1.0.1.0**. Outputs go to `Windows/artifacts/store/`:
 
-- `RaulPop.OgmaTyping_1.0.0.0_x64.msix`
-- `RaulPop.OgmaTyping_1.0.0.0_arm64.msix`
+- `RaulPop.OgmaTyping_1.0.1.0_x64.msix`
+- `RaulPop.OgmaTyping_1.0.1.0_arm64.msix`
 
 The [Windows workflow](../../.github/workflows/windows.yml) also builds both Store packages and uploads them as `OgmaTyping-MicrosoftStore-*` artifacts. The artifacts are ZIP containers: extract each one and upload the **MSIX inside** to Partner Center.
 
 These packages are unsigned Store submissions, not sideload installers. No private certificate is needed for Store submission; Microsoft signs the Store-distributed packages after certification. They do not fix the Smart App Control block until installed through the Store. See [Microsoft's signing FAQ](https://learn.microsoft.com/windows/apps/publish/faq/get-started-with-the-microsoft-store).
 
-The package version starts at **1.0.0.0** because the Store requires a nonzero first component and reserves the fourth component, which must be zero. The app assembly is built as 1.0.0. Increase `-PackageVersion` for later uploads. See [version requirements](https://learn.microsoft.com/windows/apps/publish/publish-your-app/package-version-numbering).
+The first Store release used **1.0.0.0**; this update uses **1.0.1.0**, with app assembly version 1.0.1. The Store requires a nonzero first component and reserves the fourth component, which must be zero. Increase `-PackageVersion` for later uploads. See [version requirements](https://learn.microsoft.com/windows/apps/publish/publish-your-app/package-version-numbering).
+
+For an update, create a new submission for the existing Ogma Typing product and upload both higher-versioned MSIX files. Keep the identity and publisher unchanged so existing installations can update. GitHub builds do not publish Store updates automatically. Certification and Store publication are separate steps. Test on the affected Windows PC before public rollout where possible; native-control CI tests are not equivalent to testing every editor.
+
+## What's new in 1.0.1
+
+- Emoji in Ogma's picker use Windows' native color-font renderer.
+- Picker colors follow Windows light/dark preference and support high contrast.
+- Compatible RichEdit controls replace trigger text directly to preserve Unicode and multiline snippets.
+- Other editors receive paced typing, with insertion stopped if focus or the active operation changes.
+
+The clipboard is not used. This is a compatibility fix; modern Notepad and the user's other affected editors still require live validation.
 
 ## Fill out the first submission
 

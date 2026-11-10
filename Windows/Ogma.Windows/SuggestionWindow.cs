@@ -46,14 +46,20 @@ internal sealed class SuggestionWindow : Form
     private void OnUserPreferenceChanged(object? sender, UserPreferenceChangedEventArgs e)
     {
         if (IsDisposed || !IsHandleCreated) return;
-        BeginInvoke(() =>
+        try
         {
-            if (IsDisposed) return;
-            palette = PickerPalette.Resolve(darkOverride);
-            BackColor = palette.Background;
-            Invalidate();
-        });
+            BeginInvoke(() =>
+            {
+                if (IsDisposed) return;
+                RefreshPalette();
+                Invalidate();
+            });
+        }
+        catch (InvalidOperationException) when (IsDisposed || Disposing || !IsHandleCreated) { }
     }
+
+    protected override void OnHandleCreated(EventArgs e) { base.OnHandleCreated(e); RefreshPalette(); }
+    private void RefreshPalette() { palette = PickerPalette.Resolve(darkOverride); BackColor = palette.Background; }
 
     public void Present(IReadOnlyList<Suggestion> results, Rectangle anchor, bool useGrid)
     {

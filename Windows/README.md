@@ -4,6 +4,8 @@ A native notification area app targeting Windows 11, on x64 and ARM64. This is a
 
 The reserved Microsoft Store product is **Ogma Typing**, published by **Raul Pop**. See [Store submission steps](Store/SUBMISSION.md) for its MSIX build commands, exact package identity, listing draft, privacy policy, and reviewer notes. Store packages use Microsoft's signing after certification, rather than the certificate-store signing path below.
 
+The next Store update is **1.0.1.0**. It adds native color-font rendering for emoji in the picker, light/dark/high-contrast palettes, direct range replacement in compatible RichEdit controls, and paced Unicode typing elsewhere. The clipboard is not used. Actual rendering inside a destination editor remains that editor's responsibility.
+
 **Smart App Control can hard-block the unsigned preview.** It has no per-app allow exception. A [publicly trusted Windows signature](https://learn.microsoft.com/windows/apps/develop/smart-app-control/code-signing-for-smart-app-control) is the distribution fix; a self-signed certificate or a ZIP rebuild does not provide that trust. See [Microsoft's FAQ](https://support.microsoft.com/en-us/windows/security/threat-malware-protection/smart-app-control-frequently-asked-questions). The current download cannot be made into a trusted release until a signing identity is available.
 
 ## Run from source
@@ -54,7 +56,11 @@ Shortcuts live in `%LOCALAPPDATA%\Ogma\snippets.json`; preferences and emoji cou
 
 Ogma keeps only the active, bounded trigger query in memory. It does not store typing history, read document text, use the clipboard, or upload data. Keyboard events injected by other software are ignored. UI Automation is used to identify protected fields and the caret; those calls run outside keyboard callbacks with a bounded wait. The picker does not activate its window, so the editor retains keyboard focus. The target window and focused element are checked again before insertion.
 
-Windows restricts simulated input into elevated apps. Run Ogma normally and test in ordinary, non-administrator editors. Password fields are excluded when the native control or UI Automation identifies them; unavailable providers suppress suggestions. When a caret is unavailable, the picker uses the focused field or window center, never the pointer. Some games, terminals, IMEs, remote desktops, or custom editors may not accept Unicode input or expose suitable accessibility information. A failed insertion can be partial; Ogma reports it and does not retry into a potentially changed document.
+Windows restricts simulated input into elevated apps. Run Ogma normally and test in ordinary, non-administrator editors. Password fields are excluded when the native control or UI Automation identifies them; unavailable providers suppress suggestions. Compatible RichEdit controls use selection indices and Unicode range replacement; Ogma does not read the document text. Other editors receive paced Unicode key pairs, with focus/cancellation checked between each pair. When a caret is unavailable, the picker uses the focused field or window center, never the pointer. Some games, terminals, IMEs, remote desktops, or custom editors may not accept Unicode input or expose suitable accessibility information. A failed insertion can be partial; Ogma reports it and does not retry into a potentially changed document.
+
+## Update a Store-installed copy
+
+A GitHub push runs the build and produces artifacts; it does not update installed Store apps. Build higher-versioned MSIX files with the same identity, upload x64 and ARM64 packages to a new Partner Center submission, complete certification, and publish it. Microsoft Store then delivers the update according to each PC's update settings. The current update packages use version `1.0.1.0`, above the first release's `1.0.0.0`. Do not try to install unsigned submission packages directly to work around Store signing.
 
 This preview has manual updates through **View releases**. Sparkle updates, macOS crash report handling, start-at-login, and an installer are not implemented for Windows. Smart App Control may hard-block unsigned previews, and it has no per-app allow exception. SmartScreen is a separate reputation check and can still warn for a newly signed publisher. Public distribution needs trusted Authenticode signatures and a verified Windows test pass.
 
@@ -72,6 +78,8 @@ Run `pwsh -NoProfile -File Windows/Tests/PackagingTests.ps1` to check the packag
 
 On Windows, also run `dotnet run --project Windows/Ogma.Windows.Tests -c Release`. This checks native structure alignment, Unicode input payloads (without sending them), embedded resources, and the picker's non-activating window style. CI runs this on its x64 Windows host for both packaging jobs; ARM64 packaging is cross-compiled and still needs native ARM64 testing.
 
+The isolated Windows CI desktop also runs `--desktop-tests Windows/artifacts/picker-tests` through `Ogma.Windows.Tests`. It checks actual colored pixels in the DirectWrite-rendered picker, contrast in both themes, and actual Unicode insertion into its own native TextBox/RichTextBox windows, including Romanian dates, diacritics, emoji/ZWJ sequences, CJK, multiline text, preservation of surrounding text, and cancellation. It saves light/dark grid/list images. These tests do not establish compatibility with the modern Notepad release or other applications on a user's PC; those still need live testing.
+
 Before distributing a Windows build, test the following on **both Windows 11 x64 and ARM64**. These checks require a real Windows session and have not been performed by compiling on a Mac:
 
 - Extract the portable ZIP on a PC without .NET installed; launch, open Settings from the tray, pause/resume, quit, and launch a second copy.
@@ -86,8 +94,8 @@ Before distributing a Windows build, test the following on **both Windows 11 x64
 ## Layout
 
 - `Ogma.Core`: platform-independent trigger, search, suggestions, and storage logic, implemented in C# to match macOS behavior.
-- `Ogma.Windows`: Windows Forms tray/settings/picker, Win32 keyboard and pointer hooks, UI Automation focus/caret inspection, and Unicode `SendInput` insertion. WPF framework references provide the managed UI Automation APIs; no third-party packages are used.
+- `Ogma.Windows`: Windows Forms tray/settings/picker, DirectWrite/Direct2D color-font rendering, Win32 keyboard and pointer hooks, UI Automation focus/caret inspection, RichEdit range replacement, and paced Unicode `SendInput` fallback. WPF framework references provide the managed UI Automation APIs; no third-party packages are used.
 - `Ogma.Core.Tests`: a dependency-free executable test harness. Run with `dotnet run`, not `dotnet test`.
-- `Ogma.Windows.Tests`: Windows-only interop/resource/window checks; never installs hooks or injects keystrokes into the desktop.
+- `Ogma.Windows.Tests`: default interop/resource/window checks do not inject input. Optional, CI-only capture and desktop-regression modes exercise the actual app and send input only to their own test editors on an isolated runner.
 
 Platform behavior follows Microsoft's documentation for [keyboard hooks](https://learn.microsoft.com/windows/win32/winmsg/lowlevelkeyboardproc), [keyboard layout translation](https://learn.microsoft.com/windows/win32/api/winuser/nf-winuser-tounicodeex), [UI Automation text ranges](https://learn.microsoft.com/windows/win32/winauto/uiauto-usingtextrangeobjects), and [Unicode input and privilege restrictions](https://learn.microsoft.com/windows/win32/api/winuser/nf-winuser-sendinput).

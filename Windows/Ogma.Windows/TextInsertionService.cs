@@ -6,15 +6,18 @@ internal static class TextInsertionService
 {
     public static async Task<bool> ReplaceAsync(FocusSnapshot target, int length, string replacement, Func<bool>? isCurrent = null)
     {
-        if (length <= 0 || replacement.Length == 0 || !FocusService.Matches(target)) return false;
+        if (length <= 0 || replacement.Length == 0) return false;
         // Held modifiers can turn backspaces into commands or alter insertion.
-        if (new[] { 0x10, 0x11, 0x12, 0x5B, 0x5C }.Any(NativeMethods.IsDown)) return false;
+        bool CanContinue() => isCurrent?.Invoke() != false && FocusService.Matches(target)
+            && !new[] { 0x10, 0x11, 0x12, 0x5B, 0x5C }.Any(NativeMethods.IsDown);
+        if (!CanContinue()) return false;
+        var direct = RichEditInsertion.TryReplace(target, length, replacement, CanContinue);
+        if (direct != NativeInsertionResult.NotApplicable) return direct == NativeInsertionResult.Succeeded;
         var inputs = CreateInputs(length, replacement);
         var size = Marshal.SizeOf<NativeMethods.Input>();
         for (var index = 0; index < inputs.Length; index += 2)
         {
-            if (isCurrent?.Invoke() == false || !FocusService.Matches(target)
-                || new[] { 0x10, 0x11, 0x12, 0x5B, 0x5C }.Any(NativeMethods.IsDown)) return false;
+            if (!CanContinue()) return false;
             var pair = new[] { inputs[index], inputs[index + 1] };
             if (NativeMethods.SendInput(2, pair, size) != 2) return false;
             // VK_PACKET text is processed asynchronously by modern editors.

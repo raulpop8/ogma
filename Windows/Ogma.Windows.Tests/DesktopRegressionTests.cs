@@ -110,8 +110,8 @@ internal static class DesktopRegressionTests
                 {
                     foreach (var replacement in replacements.Concat(Enumerable.Repeat(romanian, 5)))
                     {
-                        editor.Text = "/date";
-                        editor.Select(editor.TextLength, 0);
+                        editor.Text = "Before /date after";
+                        editor.Select("Before /date".Length, 0);
                         form.Activate(); editor.Focus();
                         SetForegroundWindow(form.Handle);
                         await System.Threading.Tasks.Task.Delay(80);
@@ -120,7 +120,7 @@ internal static class DesktopRegressionTests
                         var snapshot = new FocusSnapshot(form.Handle, focus, Array.Empty<int>(), Rectangle.Empty);
                         Require(await TextInsertionService.ReplaceAsync(snapshot, 5, replacement), "Paced Unicode insertion failed.");
                         await System.Threading.Tasks.Task.Delay(80);
-                        var expected = replacement.Replace("\r\n", "\n").Replace('\r', '\n');
+                        var expected = "Before " + replacement.Replace("\r\n", "\n").Replace('\r', '\n') + " after";
                         var actual = editor.Text.Replace("\r\n", "\n").Replace('\r', '\n');
                         Require(actual == expected, $"{editor.GetType().Name}: received '{actual}' instead of '{expected}'.");
                     }
@@ -131,9 +131,9 @@ internal static class DesktopRegressionTests
                     Require(editor.Text == "/date", "Cancelled insertion altered the editor.");
                     var checks = 0;
                     Require(!await TextInsertionService.ReplaceAsync(target, 5, "must stop", () => ++checks < 3), "Interrupted insertion must stop.");
-                    Require(editor.Text == "/da", "Insertion continued after its cancellation guard changed.");
+                    Require(editor.Text == (editor is RichTextBox ? "/date" : "/dat"), "Insertion continued after its cancellation guard changed.");
                 }
-                Console.WriteLine("Paced insertion passed in native TextBox and RichTextBox: Romanian dates, diacritics, emoji, joined sequences, CJK, multiline, and cancellation.");
+                Console.WriteLine("Insertion passed in native TextBox and RichTextBox: Romanian dates, diacritics, emoji, joined sequences, CJK, multiline, surrounding text preservation, and cancellation.");
             }
             catch (Exception e) { failure = e; }
             finally { form.Close(); }
